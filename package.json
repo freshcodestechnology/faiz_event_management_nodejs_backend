@@ -27,6 +27,7 @@
       "@types/node": "^22.10.1",
       "@types/node-schedule": "^2.1.7",
       "@types/nodemailer": "^6.4.16",
+      "@types/qrcode": "^1.5.5",
       "@types/retry": "^0.12.5",
       "@types/serve-index": "^1.9.4",
       "@types/swagger-jsdoc": "^6.0.4",
