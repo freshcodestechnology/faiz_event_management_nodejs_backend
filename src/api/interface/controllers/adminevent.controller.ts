@@ -52,6 +52,7 @@ const iv = env.DECRYPT_KEY;
         });
         
     } catch (error) {
+        console.log(error);
         ErrorResponse(res, 'An error occurred during event retrieval.');
     }
 };

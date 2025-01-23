@@ -1,0 +1,1115 @@
+{
+	"info": {
+		"_postman_id": "eb58f8ac-9a17-4aff-bdcc-941fa0de4a68",
+		"name": "Event Managment API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35309676",
+		"_collection_link": "https://elekar.postman.co/workspace/elekar-Workspace~cc68c3ed-b7fa-4113-bca2-23a56e952350/collection/35309676-eb58f8ac-9a17-4aff-bdcc-941fa0de4a68?action=share&source=collection_link&creator=35309676"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register Admin User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"adminw@gmail.com\",\r\n    \"password\":\"admin@123\",\r\n    \"name\":\"name test\",\r\n    \"role\":\"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}register",
+							"host": [
+								"{{BASEURL}}register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"admin@gmail.com\",\r\n    \"password\":\"admin@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}login",
+							"host": [
+								"{{BASEURL}}login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin User",
+			"item": [
+				{
+					"name": "Get Admin User List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}get-admin-user-list?page=1&pageSize=0&searchQuery=",
+							"host": [
+								"{{BASEURL}}get-admin-user-list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "0"
+								},
+								{
+									"key": "searchQuery",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Admin Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"bhavin sdfsdf\",\r\n    \"email\":\"bhavinsdfsdf1@gmail.com\",\r\n    \"password\":\"admin@123\",\r\n    \"role\":\"manager\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}save-admin-users",
+							"host": [
+								"{{BASEURL}}save-admin-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get single admin user details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-single-admin-users/6791e2e0f83a198b01b11a02",
+							"host": [
+								"{{BASEURL}}get-single-admin-users"
+							],
+							"path": [
+								"6791e2e0f83a198b01b11a02"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"TEst check update\",\r\n    \"email\":\"admin2@gmail.com\",\r\n    \"role\":\"admin\",\r\n    \"user_id\":\"6791e2e0f83a198b01b11a02\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}update-admin-users",
+							"host": [
+								"{{BASEURL}}update-admin-users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event CURD",
+			"item": [
+				{
+					"name": "Save Event Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company_name",
+									"value": "Test event Company Data f",
+									"type": "text"
+								},
+								{
+									"key": "event_title",
+									"value": "Test event title",
+									"type": "text"
+								},
+								{
+									"key": "event_slug",
+									"value": "Test event Company Dataeer check o",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting one",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting two",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting three",
+									"type": "text"
+								},
+								{
+									"key": "event_description",
+									"value": "event_descriptionevent_descriptionevent_descriptionevent_description",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "google_map_url",
+									"value": "https://maps.app.goo.gl/EAFz3QRXCaxP7pVZA",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "sfsdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "event_type",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity one",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity two",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity three",
+									"type": "text"
+								},
+								{
+									"key": "event_logo",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Desktop/img/61OLh5IWVWL.jpg"
+								},
+								{
+									"key": "event_image",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Desktop/img/200x200.png"
+								},
+								{
+									"key": "organizer_name",
+									"value": "test organizer_name",
+									"type": "text"
+								},
+								{
+									"key": "organizer_email",
+									"value": "organizer_email@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "organizer_phone",
+									"value": "9090909090",
+									"type": "text"
+								},
+								{
+									"key": "sort_des_about_event",
+									"value": "kjnsdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASEURL}}save-event-details",
+							"host": [
+								"{{BASEURL}}save-event-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Event Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company_name",
+									"value": "Test event Company Data f SDSDF",
+									"type": "text"
+								},
+								{
+									"key": "event_title",
+									"value": "Test event title",
+									"type": "text"
+								},
+								{
+									"key": "event_slug",
+									"value": "Test event Company Dataeer check one one",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting one",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting two",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting three",
+									"type": "text"
+								},
+								{
+									"key": "event_description",
+									"value": "event_descriptionevent_descriptionevent_descriptionevent_description",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "google_map_url",
+									"value": "https://maps.app.goo.gl/EAFz3QRXCaxP7pVZA",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "sfsdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "event_type",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity one",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity two",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity three",
+									"type": "text"
+								},
+								{
+									"key": "event_logo",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "event_image",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Desktop/img/260671.png"
+								},
+								{
+									"key": "organizer_name",
+									"value": "test organizer_name",
+									"type": "text"
+								},
+								{
+									"key": "organizer_email",
+									"value": "organizer_email@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "organizer_phone",
+									"value": "9090909090",
+									"type": "text"
+								},
+								{
+									"key": "sort_des_about_event",
+									"value": "kjnsdf",
+									"type": "text"
+								},
+								{
+									"key": "event_id",
+									"value": "6789ecf4e91f34f5f532401d",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASEURL}}update-event-details",
+							"host": [
+								"{{BASEURL}}update-event-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event Detail",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{BASEURL}}get-event-details/6789ecf4e91f34f5f532401d",
+							"host": [
+								"{{BASEURL}}get-event-details"
+							],
+							"path": [
+								"6789ecf4e91f34f5f532401d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Event",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company_name",
+									"value": "Test event Company Data f",
+									"type": "text"
+								},
+								{
+									"key": "event_title",
+									"value": "Test event title",
+									"type": "text"
+								},
+								{
+									"key": "event_slug",
+									"value": "Test event Company Dataeer",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting one",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting two",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting three",
+									"type": "text"
+								},
+								{
+									"key": "event_description",
+									"value": "event_descriptionevent_descriptionevent_descriptionevent_description",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "google_map_url",
+									"value": "https://maps.app.goo.gl/EAFz3QRXCaxP7pVZA",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "sfsdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "event_type",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity one",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity two",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity three",
+									"type": "text"
+								},
+								{
+									"key": "event_logo",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Downloads/event_qrcode_levenet-event-test_1735913313 (1).png"
+								},
+								{
+									"key": "event_image",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Downloads/event_qrcode_levenet-event-test_1735913313 (2).png"
+								},
+								{
+									"key": "organizer_name",
+									"value": "test organizer_name",
+									"type": "text"
+								},
+								{
+									"key": "organizer_email",
+									"value": "organizer_email@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "organizer_phone",
+									"value": "9090909090",
+									"type": "text"
+								},
+								{
+									"key": "sort_des_about_event",
+									"value": "kjnsdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASEURL}}delete-event/6780f7150a2274a62106413c",
+							"host": [
+								"{{BASEURL}}delete-event"
+							],
+							"path": [
+								"6780f7150a2274a62106413c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event List",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company_name",
+									"value": "Test event Company Data f",
+									"type": "text"
+								},
+								{
+									"key": "event_title",
+									"value": "Test event title",
+									"type": "text"
+								},
+								{
+									"key": "event_slug",
+									"value": "Test event Company Dataeer",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting one",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting two",
+									"type": "text"
+								},
+								{
+									"key": "reason_for_visiting[]",
+									"value": "reason_for_visiting three",
+									"type": "text"
+								},
+								{
+									"key": "event_description",
+									"value": "event_descriptionevent_descriptionevent_descriptionevent_description",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "start_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "end_date[]",
+									"value": "2025-01-01T10:00:00Z",
+									"type": "text"
+								},
+								{
+									"key": "google_map_url",
+									"value": "https://maps.app.goo.gl/EAFz3QRXCaxP7pVZA",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "sfsdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "event_type",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity one",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity two",
+									"type": "text"
+								},
+								{
+									"key": "company_activity[]",
+									"value": "company_activity three",
+									"type": "text"
+								},
+								{
+									"key": "event_logo",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Downloads/event_qrcode_levenet-event-test_1735913313 (1).png"
+								},
+								{
+									"key": "event_image",
+									"type": "file",
+									"src": "/C:/Users/freshcodes/Downloads/event_qrcode_levenet-event-test_1735913313 (2).png"
+								},
+								{
+									"key": "organizer_name",
+									"value": "test organizer_name",
+									"type": "text"
+								},
+								{
+									"key": "organizer_email",
+									"value": "organizer_email@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "organizer_phone",
+									"value": "9090909090",
+									"type": "text"
+								},
+								{
+									"key": "sort_des_about_event",
+									"value": "kjnsdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASEURL}}get-event-list",
+							"host": [
+								"{{BASEURL}}get-event-list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "generate-unique-url",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}generate-unique-url/test-event-company-dataeer-d-sdsds-s",
+							"host": [
+								"{{BASEURL}}generate-unique-url"
+							],
+							"path": [
+								"test-event-company-dataeer-d-sdsds-s"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Event Details Using Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-event-details-using-token/141d30abd6d43b3adb06396ffed2dff8ad52d50f440e1bc4f0c4cbff2c4df3d0e379de823ebb3061dcbce69dc95d30a684174cfbe7a07753fa819edd17b70fa12c64904778dff130340eeebf9d4b594b",
+							"host": [
+								"{{BASEURL}}get-event-details-using-token"
+							],
+							"path": [
+								"141d30abd6d43b3adb06396ffed2dff8ad52d50f440e1bc4f0c4cbff2c4df3d0e379de823ebb3061dcbce69dc95d30a684174cfbe7a07753fa819edd17b70fa12c64904778dff130340eeebf9d4b594b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get  participant user based on event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-paticipant-user-list/test-event-company-dataeer",
+							"host": [
+								"{{BASEURL}}get-paticipant-user-list"
+							],
+							"path": [
+								"test-event-company-dataeer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Participent users",
+			"item": [
+				{
+					"name": "Get country",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-country",
+							"host": [
+								"{{BASEURL}}get-country"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get State country Wise",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-state/67610db09c6d81094c056ee4",
+							"host": [
+								"{{BASEURL}}get-state"
+							],
+							"path": [
+								"67610db09c6d81094c056ee4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get city state Wise",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-city/676113e987d81257420a6ae6",
+							"host": [
+								"{{BASEURL}}get-city"
+							],
+							"path": [
+								"676113e987d81257420a6ae6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user details based on email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}get-user-details/tes1t2@gmail.com",
+							"host": [
+								"{{BASEURL}}get-user-details"
+							],
+							"path": [
+								"tes1t2@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store participent user details",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user_token",
+									"value": "c07c08f7-8def-4a69-9ed9-36ff2475d22b",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "test user",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "bhavin",
+									"type": "text"
+								},
+								{
+									"key": "designation",
+									"value": "sdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "organization",
+									"value": "sdsd",
+									"type": "text"
+								},
+								{
+									"key": "contact",
+									"value": "contact_no",
+									"type": "text"
+								},
+								{
+									"key": "country",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "234234",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "sdfnkj kjsndf kjsndf kjsndf",
+									"type": "text"
+								},
+								{
+									"key": "visit_reason",
+									"value": "sdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "company_activity",
+									"value": "sdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "referral_source",
+									"value": "asdasd",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "tes1t2@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "event_id",
+									"value": "6780bfdfdbfbecfcdae49041",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASEURL}}store-participant-details",
+							"host": [
+								"{{BASEURL}}store-participant-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Pdf",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASEURL}}generate-event-pdf/141d30abd6d43b3adb06396ffed2dff8ad52d50f440e1bc4f0c4cbff2c4df3d0e379de823ebb3061dcbce69dc95d30a684174cfbe7a07753fa819edd17b70fa12c64904778dff130340eeebf9d4b594b",
+							"host": [
+								"{{BASEURL}}generate-event-pdf"
+							],
+							"path": [
+								"141d30abd6d43b3adb06396ffed2dff8ad52d50f440e1bc4f0c4cbff2c4df3d0e379de823ebb3061dcbce69dc95d30a684174cfbe7a07753fa819edd17b70fa12c64904778dff130340eeebf9d4b594b"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "TOKEN",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzdjZWJkNzI3MDgwNmIyZjdlMTZiZmMiLCJlbWFpbCI6ImFkbWlud0BnbWFpbC5jb20iLCJuYW1lIjoibmFtZSB0ZXN0IiwiaWF0IjoxNzM2MjQwMTIzLCJleHAiOjE3MzYyNDM3MjN9.WR_PWWIY7cRNTfdeEPP9r6B_iJ57OlPA2orjSe23bPE",
+			"type": "string"
+		},
+		{
+			"key": "BASEURL",
+			"value": "http://148.72.144.28:3000",
+			"type": "string"
+		}
+	]
+}
