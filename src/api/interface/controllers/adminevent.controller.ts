@@ -185,6 +185,7 @@ export const storeAdminEvent = async (req: Request, res: Response) => {
             return successResponse(res, "Get Admin Event List", { result });
         });
     } catch (error) {
+        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 };
