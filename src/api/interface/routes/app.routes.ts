@@ -1,11 +1,11 @@
 import express from "express";
 import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { storeAdminEvent,updateAdminEvent,getAdminEventDetails ,getAdminEventList,deleteAdminEvent,generateUniqueURL,getTokeneventDetails,getParticipantUserList} from "../../interface/controllers/adminevent.controller";
+import { storeAdminEvent,updateAdminEvent,getAdminEventDetails ,getAdminEventList,deleteAdminEvent,generateUniqueURL,getTokeneventDetails,getParticipantUserList,} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf } from "../../interface/controllers/participantUser.controller";
-import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser} from "../../interface/controllers/adminuser.controller";
+import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema } from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
 import { adminEventSchema , adminUpdateEventSchema} from "../../utils/validation-schems/adminevent.validation";
@@ -22,7 +22,10 @@ import { uploadImagesFile } from "../../helper/helper";
             route.post("/register",validateRequest(registerUserSchema),registerUser);
             route.post("/login",validateRequest(loginUserSchema),loginUser);
             route.post("/logout",validateRequest(loginUserSchema),loginUser);
-            
+            //email validation api
+
+            route.post("/check-email", protectedRoute ,checkEmailUser);
+
             //admin users url
             route.get("/get-admin-user-list", protectedRoute ,getAdminUser);
             route.post("/save-admin-users",protectedRoute,validateRequest(registerUserSchema),storeAdminUser);

@@ -67,6 +67,33 @@ export const updateAdminUser = async (req: Request, res: Response) => {
     }
 }
 
+export const checkEmailUser = async (req: Request, res: Response) => {
+    try {
+        const { email, id } = req.query; 
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required.' });
+        }
+
+        let user;
+
+        if (id) {
+            user = await userSchema.findOne({ email: email, _id: { $ne: id } });
+        } else {
+            user = await userSchema.findOne({ email: email });
+        }
+
+        if (user) {
+            return res.status(409).json({ success: false, message: 'Email is already in use.' });
+        }
+
+        return res.status(200).json({ success: true, message: 'Email is available.' });
+    } catch (error) {
+        console.error('Error in checkEmailUser:', error);
+        return res.status(500).json({ success: false, message: 'An internal server error occurred.' });
+    }
+};
+
 
 
 
