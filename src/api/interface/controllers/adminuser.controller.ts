@@ -94,6 +94,19 @@ export const checkEmailUser = async (req: Request, res: Response) => {
     }
 };
 
+export const deleteAdminUser = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const user  = await userSchema.findById(id);          
+        if (!user) {
+            return ErrorResponse(res, "User not found")
+        }
+         await userSchema.findByIdAndDelete(id);
+        return successResponse(res, 'User deleted successfully',[])   
+    } catch (error) {
+        return  ErrorResponse(res,'An error occurred during user registration.')
+    }           
+}   
 
 
 
