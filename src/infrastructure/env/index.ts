@@ -11,6 +11,12 @@ export const env = {
     APP_PORT: process.env.PORT,
 
     NODE_ENV: process.env.NODE_ENV,
+    SMTP_USER: process.env.EMAIL_USER,
+    SMTP_PASS: process.env.EMAIL_PASS,
+    SMTP_HOST: process.env.EMAIL_HOST,
+    SMTP_PORT: process.env.EMAIL_PORT,
+    SMTP_SECURE: process.env.EMAIL_SECURE,
+    SMTP_FROM: process.env.EMAIL_FROM,
 
     IMAGES_PATH: process.env.IMAGES_PATH,
 

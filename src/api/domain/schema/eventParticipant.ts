@@ -7,6 +7,7 @@ export interface IEventParticipant extends Document {
     visit_reason : string;
     referral_source : string;
     company_activity : string;
+    qr_image: string;
 }
 
 const EventParticipantSchema: Schema = new Schema<IEventParticipant>(
@@ -18,6 +19,7 @@ const EventParticipantSchema: Schema = new Schema<IEventParticipant>(
         visit_reason : { type: String, required: true },
         referral_source : { type: String, required: true },
         company_activity : { type: String, required: true },
+        qr_image: { type: String, required: false },
     },
     {
         collection: "event_participant", 
