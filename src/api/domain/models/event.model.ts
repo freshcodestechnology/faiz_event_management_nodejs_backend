@@ -284,8 +284,8 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
                 event.event_image = baseUrl + event.event_image;
             }
 
-            const company_visit = await reasonSchema.find({ event_id: event ? event._id : 0  });
-            const visitReason = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
+            const company_visit = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
+            const visitReason = await reasonSchema.find({ event_id: event ? event._id : 0  });
             let show_form = true;
             const result = {show_form,event,user_token,slug,company_visit,visitReason}
             return callback(null, result);
