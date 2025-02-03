@@ -278,10 +278,13 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
             const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image');
             if (event?.event_logo) {
                 event.event_logo = baseUrl +'/'+ event.event_logo;
+                console.log(event.event_logo);
+
             }
         
             if (event?.event_image) {
                 event.event_image = baseUrl +'/'+ event.event_image;
+                console.log(event.event_image);
             }
 
             const company_visit = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
