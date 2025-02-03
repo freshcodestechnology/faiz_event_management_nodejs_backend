@@ -298,11 +298,11 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
             let show_form = false;
             const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image');
             if (event?.event_logo) {
-                event.event_logo = baseUrl + event.event_logo;
+                event.event_logo = baseUrl +'/'+ event.event_logo;
             }
         
             if (event?.event_image) {
-                event.event_image = baseUrl + event.event_image;
+                event.event_image = baseUrl +'/'+event.event_image;
             }
             const participantUser = await ParticipantSchema.findOne({ _id: EventParticipantData?.participant_user_id });
             
