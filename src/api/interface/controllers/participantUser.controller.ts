@@ -77,7 +77,6 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         const decoded = encrypt_token;
         const decrypted = cryptoService.decryptCombinedValue(decoded, key, iv);
         const { slug, token } = decrypted;
-        console.log("token_token_token_token_token_token"+token);
 
         const event_participant_details = await eventParticipant.findOne({ token });
         if (!event_participant_details) {
@@ -92,7 +91,6 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         if (event_details?.event_image) {
             event_details.event_image = baseUrl +'/'+ event_details.event_image;
         }
-        console.log('event_details.event_logo',event_details?.event_logo);
         const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
 
         if (!participant_details) {
@@ -128,8 +126,6 @@ export const generateEventPdf = async (req: Request, res: Response) => {
             }
         });
 
-        console.log(filterDates);
-
         const detailsHTML = `
             <ul class="list-unstyled mt-2">
                 ${filterDates.map(date => `<li class="mt-2">${date}</li>`).join('')}
@@ -144,8 +140,7 @@ export const generateEventPdf = async (req: Request, res: Response) => {
             event_address: event_details?.address,
         });
         const base64Image = await QRCode.toDataURL(participant_qr_details);
-        console.log('Generated QR Code:', base64Image);
-      
+   
         const htmlContent = `
         <!DOCTYPE html>
         <html>

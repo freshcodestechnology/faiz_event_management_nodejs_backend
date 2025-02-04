@@ -161,9 +161,10 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     const base64Image = await QRCode.toDataURL(participant_qr_details);
                     const qrFileName = saveQrImage(base64Image, event_participant_details.token);
                     event_participant_details.qr_image = qrFileName;
-                    console.log('qrFileName',qrFileName);
+                    console.log('qrFileName_qrFileName_qrFileName_',qrFileName);
                     await event_participant_details.save();
                     const qr_iamge_url = baseUrl +'/uploads/'+ qrFileName;
+                    console.log('qr_iamge_url_qr_iamge_url_qr_iamge_url',qr_iamge_url);
                     const htmlContent = `
                     <!DOCTYPE html>
                     <html>
@@ -323,6 +324,7 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
 function saveQrImage(base64String: string, fileName: string): string {
     const base64Data = base64String.replace(/^data:image\/png;base64,/, ""); // Remove prefix
     const filePath = path.join(qrDirectory, `${fileName}.png`); // File path
+    console.log('qrDirectory_qrDirectory_qrDirectory',qrDirectory);
     fs.writeFileSync(filePath, base64Data, 'base64'); // Save file
     return `${fileName}.png`; // Return saved file path
 }
