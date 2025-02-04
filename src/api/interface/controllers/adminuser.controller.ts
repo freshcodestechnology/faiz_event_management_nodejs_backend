@@ -76,10 +76,16 @@ export const checkEmailUser = async (req: Request, res: Response) => {
             return res.status(400).json({ success: false, message: 'Email is required.' });
         }
 
-        let user;
        
+         if (id && typeof id === 'string') {
+            if (!Types.ObjectId.isValid(id)) {
+                return ErrorResponse(res, 'Invalid user ID format.');
+            }
+        }
+
+        let user;
         if (id && typeof id === 'string') {
-            user = await userSchema.findOne({ email: email, _id: id });
+            user = await userSchema.findOne({ email: email, _id: {$n:id} });
         } else {
             user = await userSchema.findOne({ email: email });
         }
