@@ -28,7 +28,7 @@ interface ParticipantUsersData {
     event_id?: string;
 }
 
-const qrDirectory =  path.join(__dirname, "../../../../uploads");;
+const qrDirectory = path.join(__dirname, "..", "..", "..", "..","uploads"); 
 if (!fs.existsSync(qrDirectory)) {
     fs.mkdirSync(qrDirectory, { recursive: true });
 }
@@ -36,9 +36,6 @@ if (!fs.existsSync(qrDirectory)) {
 
 export const storeParticipantUser = async (participantUserData: ParticipantUsersData, callback: (error: any, result: any) => void) => {
     try {    
-       
-
-        console.log(participantUserData);
         const existingUser = await participantUsers.findOne({ email: participantUserData.email });
         if (existingUser) {
           
@@ -100,7 +97,6 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
 
           var token = participantUserData.user_token;
           const baseUrl = env.BASE_URL;
-          console.log('BASE_URL:', baseUrl);
            const event_participant_details = await EventParticipant.findOne({ token });
                   if (!event_participant_details) {
                       return ErrorResponse(baseUrl, "Participant details not found");
@@ -149,8 +145,6 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                       }
                   });
           
-                //   console.log(filterDates);
-          
                   const detailsHTML = `
                       <ul class="list-unstyled mt-2">
                           ${filterDates.map(date => `<li class="mt-2">${date}</li>`).join('')}
@@ -165,12 +159,11 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                         event_address: event_details?.address,
                     });
                     const base64Image = await QRCode.toDataURL(participant_qr_details);
-                    // console.log('Generated QR Code:', base64Image);
-                    const qrFileName = saveQrImage(base64Image, event_participant_details.id);
+                    const qrFileName = saveQrImage(base64Image, event_participant_details.token);
                     event_participant_details.qr_image = qrFileName;
+                    console.log('qrFileName',qrFileName);
                     await event_participant_details.save();
                     const qr_iamge_url = baseUrl +'/uploads/'+ qrFileName;
-                    console.log('QR Code URL:', qr_iamge_url);
                     const htmlContent = `
                     <!DOCTYPE html>
                     <html>
@@ -268,7 +261,7 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     <body>
                         <div class="container">
                             <div class="text-center">
-                                <img src="`+event_details?.event_logo+`" alt="Event Logo" style="max-width: 100%; height: auto; border-radius: 10px;">
+                                <img src="`+event_details?.event_logo+`" alt="Event Logo" style="max-width: 100px; height: 100px; border-radius: 10px;">
                             </div>
             
                             <div class="text-center">
@@ -301,7 +294,6 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     </body>
                     </html>
                   `;
-                  console.log('base64Image_Data',base64Image);
                   const mailOptions = {
                     from: 'rentaltest0@gmail.com', 
                     to: participantUserData.email, 
@@ -331,7 +323,6 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
 function saveQrImage(base64String: string, fileName: string): string {
     const base64Data = base64String.replace(/^data:image\/png;base64,/, ""); // Remove prefix
     const filePath = path.join(qrDirectory, `${fileName}.png`); // File path
-    console.log(filePath);
     fs.writeFileSync(filePath, base64Data, 'base64'); // Save file
     return `${fileName}.png`; // Return saved file path
 }

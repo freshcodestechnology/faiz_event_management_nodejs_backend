@@ -92,6 +92,7 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         if (event_details?.event_image) {
             event_details.event_image = baseUrl +'/'+ event_details.event_image;
         }
+        console.log('event_details.event_logo',event_details?.event_logo);
         const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
 
         if (!participant_details) {
@@ -242,7 +243,7 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         <body>
             <div class="container">
                 <div class="text-center">
-                    <img src="{{ $base64Logo = 'data:image/' . pathinfo(getImage($event_data->event_logo), PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents(getImage($event_data->event_logo)))}}" alt="Event Logo" style="max-width: 100%; height: auto; border-radius: 10px;">
+                    <img src="`+event_details?.event_logo+`" alt="Event Logo" style="max-width: 100px; height: 100px; border-radius: 10px;">
                 </div>
 
                 <div class="text-center">
