@@ -24,7 +24,7 @@ import { uploadImagesFile } from "../../helper/helper";
             route.post("/logout",validateRequest(loginUserSchema),loginUser);
             //email validation api
 
-            route.post("/check-email", protectedRoute ,checkEmailUser);
+            route.get("/check-email", protectedRoute ,checkEmailUser);
 
             //admin users url
             route.get("/get-admin-user-list", protectedRoute ,getAdminUser);
