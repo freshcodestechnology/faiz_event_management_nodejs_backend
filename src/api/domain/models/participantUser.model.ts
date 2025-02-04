@@ -108,11 +108,11 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
           
                   const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
                   if (event_details?.event_logo) {
-                      event_details.event_logo = baseUrl + event_details.event_logo;
+                      event_details.event_logo = baseUrl +'/'+ event_details.event_logo;
                   }
               
                   if (event_details?.event_image) {
-                      event_details.event_image = baseUrl + event_details.event_image;
+                      event_details.event_image = baseUrl +'/'+ event_details.event_image;
                   }
                   const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
           
