@@ -96,7 +96,7 @@ export const adminUserList = async (userData: userLoginData, page: number, pageS
 
 export const userLogin = async (userData: userLoginData,  callback: (error:any, result: any) => void) => {
     try {
-        const user = await userSchema.findOne({ email: userData.email });
+        const user = await userSchema.findOne({ email: { $regex: new RegExp(`^${userData.email}$`, 'i') } });
         if (!user) {
             const error = new Error("User not found with this email.");
             return callback(error, null);
