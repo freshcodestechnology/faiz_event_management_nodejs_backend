@@ -29,7 +29,7 @@ interface ParticipantUsersData {
 }
 
 const qrDirectory = path.join(__dirname, "..", "..", "..", "..","uploads"); 
-console.log("__dirname__dirname__dirname",__dirname);
+
 if (!fs.existsSync(qrDirectory)) {
     fs.mkdirSync(qrDirectory, { recursive: true });
 }
@@ -323,7 +323,9 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
 
 
 function saveQrImage(base64String: string, fileName: string): string {
+    console.log("__dirname__dirname__dirname",__dirname);
     const base64Data = base64String.replace(/^data:image\/png;base64,/, ""); // Remove prefix
+    console.log('qrDirectory',)
     const filePath = path.join(qrDirectory, `${fileName}.png`); // File path
     console.log('qrDirectory_qrDirectory_qrDirectory',qrDirectory);
     fs.writeFileSync(filePath, base64Data, 'base64'); // Save file
