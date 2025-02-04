@@ -29,6 +29,7 @@ interface ParticipantUsersData {
 }
 
 const qrDirectory = path.join(__dirname, "..", "..", "..", "..","uploads"); 
+console.log("__dirname__dirname__dirname",__dirname);
 if (!fs.existsSync(qrDirectory)) {
     fs.mkdirSync(qrDirectory, { recursive: true });
 }
