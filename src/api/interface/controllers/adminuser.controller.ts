@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { successCreated, successResponse ,ErrorResponse } from "../../helper/apiResponse";
+import { Types } from 'mongoose';
+import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import { adminUserList,storeUser,updateUser } from "../../domain/models/user.model";
 import userSchema from "../../domain/schema/user.schema";
 
@@ -76,9 +77,9 @@ export const checkEmailUser = async (req: Request, res: Response) => {
         }
 
         let user;
-
+       
         if (id) {
-            user = await userSchema.findOne({ email: email, _id: { $ne: id } });
+            user = await userSchema.findOne({ email: email, _id: id });
         } else {
             user = await userSchema.findOne({ email: email });
         }
