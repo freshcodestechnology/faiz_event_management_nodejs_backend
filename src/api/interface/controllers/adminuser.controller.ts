@@ -85,7 +85,7 @@ export const checkEmailUser = async (req: Request, res: Response) => {
 
         let user;
         if (id && typeof id === 'string') {
-            user = await userSchema.findOne({ email: email, _id: {$n:id} });
+            user = await userSchema.findOne({ email: email, _id: { $ne: id } });
         } else {
             user = await userSchema.findOne({ email: email });
         }
