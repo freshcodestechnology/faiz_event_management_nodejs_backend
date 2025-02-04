@@ -311,7 +311,7 @@ export const generateRegistrationURL = async (req: Request, res: Response) => {
         
         const encryptedText = cryptoService.encryptCombinedValue(token, slug,key,iv);
         console.log(encryptedText);
-        const redirectUrl = `http://148.72.144.28/${encodeURIComponent(encryptedText.encryptedText)}`;
+        const redirectUrl = `http://148.72.144.28/event/${encodeURIComponent(encryptedText.encryptedText)}`;
         return res.redirect(redirectUrl);
         
     } catch (error) {
