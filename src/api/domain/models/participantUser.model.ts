@@ -296,10 +296,11 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     </body>
                     </html>
                   `;
+                  console.log("event_details?.event_logo",event_details?.event_logo);
                   const mailOptions = {
                     from: 'rentaltest0@gmail.com', 
                     to: participantUserData.email, 
-                    subject: 'Welcome to the Platform!',
+                    subject: 'Your Event ID!',
                     text: `Hello ${participantUserData.first_name},\n\nThank you for signing up! We're excited to have you onboard.\n\nBest Regards,\nYour Company Name`, // Customize the email body
                     html: htmlContent
                 };
