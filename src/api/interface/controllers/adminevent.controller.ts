@@ -300,6 +300,25 @@ export const getParticipantUserList = async (req: Request, res: Response) => {
     }
 };
 
+export const generateRegistrationURL = async (req: Request, res: Response) => {
+    try {
+        const token = uuidv4();
+        const key = env.ENCRYPT_KEY
+        const iv = env.DECRYPT_KEY
+        const { slug } = req.params;
+
+        const combinedValue = `${token}:${slug}`;
+        
+        const encryptedText = cryptoService.encryptCombinedValue(token, slug,key,iv);
+        console.log(encryptedText);
+        const redirectUrl = `http://148.72.144.28/${encodeURIComponent(encryptedText.encryptedText)}`;
+        return res.redirect(redirectUrl);
+        
+    } catch (error) {
+        console.error('Error in getParticipantUserList:', error);
+        return ErrorResponse(res, 'An internal server error occurred.');
+    }
+}
 
 
 

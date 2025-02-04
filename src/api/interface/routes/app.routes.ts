@@ -1,7 +1,7 @@
 import express from "express";
 import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,getTokeneventDetails,getParticipantUserList,} from "../../interface/controllers/adminevent.controller";
+import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList,} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf } from "../../interface/controllers/participantUser.controller";
@@ -42,6 +42,7 @@ import { uploadImagesFile } from "../../helper/helper";
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);
             route.get("/get-event-details-using-token/:token",getTokeneventDetails);
+            route.get("/get-registration-url/:slug",generateRegistrationURL);
 
             //store participant urls
             route.get("/getuser",getTokeneventDetails);
