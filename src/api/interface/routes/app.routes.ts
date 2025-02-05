@@ -4,12 +4,14 @@ import { validateRequest } from "../../middleware/validation.middleware";
 import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList,} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
+import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema } from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
 import { adminEventSchema , adminUpdateEventSchema} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
+import { settingSchema } from "../../utils/validation-schems/setting.validation";
 
 // import { getUsersProfiles, imageCaptionUpdate, imageUpload, removeImages, removeSingleImage, setProfileImage, updateUserProfile } from "../controllers/user.controller";
     const route = express.Router();
@@ -18,10 +20,13 @@ import { uploadImagesFile } from "../../helper/helper";
         try {
 
             router.use('/v1', route)
+            
             //auth urls
+
             route.post("/register",validateRequest(registerUserSchema),registerUser);
             route.post("/login",validateRequest(loginUserSchema),loginUser);
             route.post("/logout",validateRequest(loginUserSchema),loginUser);
+
             //email validation api
 
             route.get("/check-email", protectedRoute ,checkEmailUser);
@@ -32,6 +37,7 @@ import { uploadImagesFile } from "../../helper/helper";
             route.get("/get-single-admin-users/:id",protectedRoute,getSingleAdminUser);
             route.post("/update-admin-users",protectedRoute,validateRequest(updateUserSchema),updateAdminUser);
             route.post("/delete-admin-user/:id",protectedRoute,deleteAdminUser);
+
             //event module urls
             route.post("/save-event-details",protectedRoute,validateRequest(adminEventSchema),storeAdminEvent);
             route.post("/update-event-details",protectedRoute,validateRequest(adminUpdateEventSchema),updateAdminEvent);
@@ -39,6 +45,7 @@ import { uploadImagesFile } from "../../helper/helper";
             route.get("/delete-event/:id",protectedRoute,deleteAdminEvent);
             route.get("/get-event-list",protectedRoute,getAdminEventList);
             route.get("/get-paticipant-user-list/:token",protectedRoute,getParticipantUserList);
+
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);
             route.get("/get-event-details-using-token/:token",getTokeneventDetails);
@@ -54,6 +61,9 @@ import { uploadImagesFile } from "../../helper/helper";
             route.get('/get-country',getCountry)
             route.get('/get-state/:id',getState)
             route.get('/get-city/:id',getCity)
+            route.get('/scanner-page',getSetting)
+            route.post('/update-button-setting',validateRequest(settingSchema),updateSetting)
+            
             
         } catch (error) {
             // Log any errors that occur during route definition
