@@ -3,6 +3,7 @@ import { convertToSlug } from "../../helper/helper";
 import { loggerMsg } from "../../lib/logger";
 import companySchema from "../schema/company.schema";
 import { env } from "../../../infrastructure/env";
+import { inflate } from "zlib";
 
 interface companyData{
     company_name:string;
@@ -13,6 +14,38 @@ interface companyData{
     email_two:string;
     subdomain:string;
 }
+
+interface companyStatus{
+    company_id:string;
+    status:number;
+}
+
+
+export const updateStatus = async (companyStatus: companyStatus, callback: (error: any, result: any) => void) => {
+    try {
+        const company_id = companyStatus.company_id
+        const updatedCompany = await companySchema.findByIdAndUpdate(
+            company_id,
+            {
+                $set: {
+                    status: companyStatus.status,
+                },
+            },
+            { new: true } 
+        );
+
+        if (!updatedCompany) {
+            return callback(new Error("Company not found"), null);
+        }
+
+        return callback(null, { updatedCompany });
+
+    } catch (error) {
+        console.error("Error during event creation:", error);
+        loggerMsg("error", `Error during event creation: ${error}`);
+        return callback(error, null); 
+    }
+};
 
 export const storeCompany = async (companyData: companyData, callback: (error: any, result: any) => void) => {
     try {

@@ -34,7 +34,8 @@ interface eventData{
     sort_des_about_event:string,
     reason_for_visiting:string[],
     company_activity:string[],
-    event_id?: any
+    event_id?: any,
+    company_id?:string,
 }
 
 interface eventVisitReason{
@@ -45,6 +46,11 @@ interface eventVisitReason{
 interface companyActivity{
     event_id : any;
     reason : string[];
+}
+
+interface loginUserData{
+    user_id:string;
+    company_id:string;
 }
 
 export const storeEvent = async (eventData: eventData, callback: (error: any, result: any) => void) => {
@@ -97,24 +103,22 @@ export const storeEvent = async (eventData: eventData, callback: (error: any, re
 
         return callback(null, { eventId, visitReasonResult, companyActivityResult });
     } catch (error) {
-        console.error("Error during event creation:", error);
-        loggerMsg("error", `Error during event creation: ${error}`);
         return callback(error, null); 
     }
 };
 
 export const updateEvent = async (eventData: eventData, callback: (error: any, result: any) => void) => {
     try {
-        const eventId = eventData.event_id; // Ensure `event_id` is part of the `eventData`.
+        const eventId = eventData.event_id; 
         const existingEventWithSlug = await eventSchema.findOne({
             event_slug: convertToSlug(eventData.event_slug),
-            _id: { $ne: eventId }, // Exclude the current event from the check
+            _id: { $ne: eventId }, 
         });
         
         if (existingEventWithSlug) {
             return callback(new Error("The event_slug is already in use by another event."), null);
         }
-        // Step 1: Update the event details
+        
         const updatedEvent = await eventSchema.findByIdAndUpdate(
             eventId,
             {
@@ -140,7 +144,6 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
         if (!updatedEvent) {
             return callback(new Error("Event not found or update failed."), null);
         }
-        console.log("Event updated successfully:", updatedEvent);
         const reasonDeleteResult = await reasonSchema.deleteMany({ event_id: eventId });
         const companyActivityDeleteResult = await companyActivitySchema.deleteMany({ event_id: eventId });
 
@@ -165,8 +168,6 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
             companyActivityResult,
         });
     } catch (error) {
-        console.error("Error during event update:", error);
-        loggerMsg("error", `Error during event update: ${error}`);
         return callback(error, null);
     }
 };
@@ -189,8 +190,6 @@ export const storeEventVisitReason = async (
 
         return callback(null, savedReasons);
     } catch (error) {
-        console.log(error);
-        loggerMsg("error", `Error during storing visit reasons: ${error}`);
         return callback(error, null);
     }
 };
@@ -214,15 +213,13 @@ export const storeCompanyActivity = async (
 
         return callback(null, savedReasons);
     } catch (error) {
-        console.log(error);
-        loggerMsg("error", `Error during storing visit reasons: ${error}`);
         return callback(error, null);
     }
 };
 
-export const adminEventList = async (userData: eventData, page: number, pageSize: number, searchQuery: string, callback: (error: any, result: any) => void) => {
+export const adminEventList = async (loginUserData:loginUserData,userData: eventData, page: number, pageSize: number, searchQuery: string, callback: (error: any, result: any) => void) => {
     try {
-
+        console.log(loginUserData.company_id);
         const currentPage = page || 1;
         const size = pageSize || 10;
 
@@ -235,15 +232,16 @@ export const adminEventList = async (userData: eventData, page: number, pageSize
                       { event_title: { $regex: searchQuery, $options: 'i' } }, 
                       { event_slug: { $regex: searchQuery, $options: 'i' } }, 
                       { address: { $regex: searchQuery, $options: 'i' } }, 
-                  ]
-              }
-            : {}; 
+                    ],
+                    company_id: loginUserData.company_id
+                }
+              : { company_id: loginUserData.company_id };
 
         const events = await eventSchema.find(searchFilter).skip(skip).limit(size);
-        console.log(events);
+        
         const eventswithimage = events.map(event => {
             return {
-                ...event.toObject(), // Convert Mongoose document to plain JavaScript object
+                ...event.toObject(), 
                 event_logo: `${env.BASE_URL}/${event.event_logo}`,
                 event_image: `${env.BASE_URL}/${event.event_image}`,
             };
@@ -258,7 +256,6 @@ export const adminEventList = async (userData: eventData, page: number, pageSize
 
         return callback(null, result);
     } catch (error) {
-        console.error("Error fetching user list:", error);
         return callback(error, null);
     }
 }
@@ -278,13 +275,11 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
             const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image');
             if (event?.event_logo) {
                 event.event_logo = baseUrl +'/'+ event.event_logo;
-                console.log(event.event_logo);
 
             }
         
             if (event?.event_image) {
                 event.event_image = baseUrl +'/'+ event.event_image;
-                console.log(event.event_image);
             }
 
             const company_visit = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
@@ -320,8 +315,6 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
         }
         
     } catch (error) {
-        console.error("Error during token verification:", error);
-        loggerMsg("error", `Error during token verification: ${error}`);
         return callback(error, null);
     }
 }
@@ -356,7 +349,6 @@ export const getEventParticipantUserListModal = async(slug: string, callback: (e
         
         return callback(null, { event, participants }); 
     } catch (error) {
-        console.error("Error fetching event with participants:", error);
         return callback({ message: "An error occurred", error }, null); 
     }
 }

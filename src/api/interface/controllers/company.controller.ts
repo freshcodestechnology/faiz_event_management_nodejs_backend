@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { Types } from 'mongoose';
 import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
-import { storeCompany ,companyList ,updateCompany} from "../../domain/models/company.model";
+import { storeCompany ,companyList ,updateCompany,updateStatus} from "../../domain/models/company.model";
 import companySchema from "../../domain/schema/company.schema";
-
 
 export const storeCompanyController = async (req: Request, res: Response) => {
     try {
@@ -17,7 +16,22 @@ export const storeCompanyController = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.log(error);
+        return ErrorResponse(res, "An error occurred during event retrieval.");
+    }
+}
+
+export const updateCompanyStatus = async (req: Request, res: Response) => {
+    try {
+
+        updateStatus(req.body, (error: any, result: any) => {
+            if (error) {
+                return ErrorResponse(res, error.message);
+            }
+
+            return successResponse(res, "Status Updated", { result });
+        });
+
+    } catch (error) {
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 }
@@ -31,8 +45,6 @@ export const updateCompanyController = async (req: Request, res: Response) => {
             return ErrorResponse(res, "Company ID is required.");
         }
 
-        console.log(req.body);
-
         updateCompany(company_id, req.body, (error: any, result: any) => {
             if (error) {
                 return ErrorResponse(res, error.message);
@@ -42,7 +54,6 @@ export const updateCompanyController = async (req: Request, res: Response) => {
         });
 
     } catch (error) {
-        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 }
@@ -62,7 +73,6 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
         return successResponse(res, "Get Company details", { company });
 
     } catch (error) {
-        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 }
@@ -86,7 +96,6 @@ export const getCompany = async (req: Request, res: Response) => {
             });
 
     } catch (error) {
-        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 }
@@ -94,7 +103,6 @@ export const getCompany = async (req: Request, res: Response) => {
 export const deleteCompany = async (req: Request, res: Response) => {
     try {
         const { company_ids } = req.body; 
-        console.log(company_ids);
 
         if (!company_ids || !Array.isArray(company_ids) || company_ids.length === 0) {
             return ErrorResponse(res, "Please provide at least one valid company ID.");
@@ -109,7 +117,6 @@ export const deleteCompany = async (req: Request, res: Response) => {
         return successResponse(res, `Successfully deleted  company(ies).`,result.deletedCount);
 
     } catch (error) {
-        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 }

@@ -9,6 +9,7 @@ export interface IcompanySchema extends Document {
     email_one:string;
     email_two:string;
     subdomain:string;
+    status:number;
 }
 
 const companySchema: Schema = new Schema<IcompanySchema>({
@@ -19,6 +20,7 @@ const companySchema: Schema = new Schema<IcompanySchema>({
     email_one:{ type: String, required: true },
     email_two:{ type: String, required: false },
     subdomain:{ type: String, required: true },
+    status:{ type: Number, required: false,default: 1 },
 },
 {
     timestamps: true,

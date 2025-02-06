@@ -219,4 +219,13 @@ export const adminUpdateEventSchema = Joi.object({
     })
 });
 
+export const deleteEventSchema = Joi.object({
+    event_ids: Joi.array().required().messages({
+        "any.required": "event_ids is required."
+    }),
+});
+
+
+
+
 

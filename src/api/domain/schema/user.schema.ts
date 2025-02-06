@@ -7,6 +7,7 @@ type ClearedChat = {
 };
 
 export interface IUser extends Document {
+    company_id:string;
     name: string; // Full name
     email: string; // Email address
     password: string; //Password
@@ -14,14 +15,16 @@ export interface IUser extends Document {
     role:string//User profile
     otp?:string
     otpExpires?: Date;
-    status: boolean; // Online status
+    status:number;
     createdAt: Date; // Timestamp of account creation
     updatedAt: Date; // Timestamp of last account update
     
 }
 
-// define the user schema
 const userSchema:Schema = new Schema<IUser>({
+    company_id:{
+        type: String
+    },
     name: {
         type: String
     },
@@ -33,11 +36,9 @@ const userSchema:Schema = new Schema<IUser>({
     role: { type: String }, 
     otp:{ type: String },
     otpExpires: { type: Date },
-    status: { type: Boolean, default: true },
+    status:{ type: Number, required: false,default: 1 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
-
-// userSchema.index({ email: 1 }, { unique: true });
 
 export default mongoose.model<IUser>("User", userSchema);

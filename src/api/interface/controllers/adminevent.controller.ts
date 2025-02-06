@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { loggerMsg } from "../../lib/logger";
 import { successCreated, successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import { storeEvent,updateEvent,getEventTokenDetails ,adminEventList,getEventParticipantUserListModal} from "../../domain/models/event.model";
 import {v4 as uuidv4} from "uuid"
@@ -26,7 +27,6 @@ const iv = env.DECRYPT_KEY;
         const { id } = req.params;
     
         const user = await eventSchema.findById(id).select('+event_logo +event_image');
-        console.log(user);
         
         if (!user) {
             return ErrorResponse(res, "User not found");
@@ -52,31 +52,34 @@ const iv = env.DECRYPT_KEY;
         });
         
     } catch (error) {
-        console.log(error);
-        ErrorResponse(res, 'An error occurred during event retrieval.');
+        return ErrorResponse(res, 'An error occurred during event retrieval.');
     }
 };
 
+
+
 export const deleteAdminEvent = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
 
-        // Check if the event exists
-        const event = await eventSchema.findById(id);
-        if (!event) {
-            return ErrorResponse(res, "Event not found");
+        const { events_ids } = req.body; 
+
+        if (!events_ids || !Array.isArray(events_ids) || events_ids.length === 0) {
+            return ErrorResponse(res, "No event IDs provided");
         }
-
-        await eventSchema.findByIdAndDelete(id);
-
-        await reasonSchema.deleteMany({ event_id: id });
-
-        await Companyactivity.deleteMany({ event_id: id });
-
-        return successResponse(res, "Event and related data deleted successfully", {});
+        
+        const events = await eventSchema.find({ _id: { $in: events_ids } });
+        
+        if (events.length === 0) {
+            return ErrorResponse(res, "No matching events found");
+        }
+        
+        await eventSchema.deleteMany({ _id: { $in: events_ids } });
+        await reasonSchema.deleteMany({ event_id: { $in: events_ids } });
+        await Companyactivity.deleteMany({ event_id: { $in: events_ids } });
+        
+        return successResponse(res, "Events and related data deleted successfully", {});
     } catch (error) {
-        console.error("Error in deleteAdminEvent:", error);
-        ErrorResponse(res,'An error occurred during event retrieval.')
+        return ErrorResponse(res,'An error occurred during event retrieval.')
     }
 };
 
@@ -84,7 +87,7 @@ export const getAdminEventList = async (req: Request, res: Response) => {
 
     try {
         const { page = 1, pageSize = 10, searchQuery = "" } = req.query;
-        adminEventList(req.body,
+        adminEventList(req.user,req.body,
             parseInt(page as string),
             parseInt(pageSize as string),
             searchQuery as string, (error:any, result:any) => {
@@ -110,7 +113,6 @@ export const getAdminEvents = async (req: Request, res: Response) => {
             return res.status(400).send("No files uploaded.");
           }
       
-          // Type assertion for files
           const files = req.files as FileWithBuffer[];
           
           files.forEach((file) => {
@@ -136,7 +138,7 @@ export const getAdminEvents = async (req: Request, res: Response) => {
             return successCreated(res, result)
         });
     } catch (error) {
-        ErrorResponse(res,'An error occurred during event retrieval.')
+        return ErrorResponse(res,'An error occurred during event retrieval.')
     }
 };
 
@@ -185,14 +187,12 @@ export const storeAdminEvent = async (req: Request, res: Response) => {
             return successResponse(res, "Get Admin Event List", { result });
         });
     } catch (error) {
-        console.log(error);
         return ErrorResponse(res, "An error occurred during event retrieval.");
     }
 };
 
 export const updateAdminEvent = async (req: Request, res: Response) => {
     try {
-          // Type assertion for files
           const files = req.files as FileWithBuffer[];
           
           files.forEach((file) => {
@@ -235,21 +235,19 @@ export const generateUniqueURL = async (req:Request, res:Response) => {
 
         const combinedValue = `${token}:${slug}`;
         
-        const encryptedText = cryptoService.encryptCombinedValue(token, slug,key,iv);
-        
-        console.log("Encrypted Text:", encryptedText); 
+        const encryptedText = cryptoService.encryptCombinedValue(token, slug,key,iv); 
 
         return res.status(200).json({
             status: "success",
             encryptedText,    
         });
     
-        const redirectUrl = `https://example.com/redirect?token=${encodeURIComponent(encryptedText.encryptedText)}`;
-        return res.redirect(redirectUrl);
+        // const redirectUrl = `https://example.com/redirect?token=${encodeURIComponent(encryptedText.encryptedText)}`;
+        // return res.redirect(redirectUrl);
 
     }catch(error){
 
-        ErrorResponse(res,'An error occurred during event retrieval.')
+        return ErrorResponse(res,'An error occurred during event retrieval.')
 
     }
 }
@@ -272,8 +270,9 @@ export const getTokeneventDetails = async (req:Request , res:Response) =>{
             });
 
         });
+
     } catch (error) {
-        ErrorResponse(res,'An internal server error occurred.')
+      return  ErrorResponse(res,'An internal server error occurred.')
     }
 }
 
@@ -295,7 +294,6 @@ export const getParticipantUserList = async (req: Request, res: Response) => {
             });
         });
     } catch (error) {
-        console.error('Error in getParticipantUserList:', error);
         return ErrorResponse(res, 'An internal server error occurred.');
     }
 };
@@ -310,12 +308,11 @@ export const generateRegistrationURL = async (req: Request, res: Response) => {
         const combinedValue = `${token}:${slug}`;
         
         const encryptedText = cryptoService.encryptCombinedValue(token, slug,key,iv);
-        console.log(encryptedText);
+        
         const redirectUrl = `http://148.72.144.28/event/${encodeURIComponent(encryptedText.encryptedText)}`;
         return res.redirect(redirectUrl);
         
     } catch (error) {
-        console.error('Error in getParticipantUserList:', error);
         return ErrorResponse(res, 'An internal server error occurred.');
     }
 }

@@ -37,9 +37,20 @@ export const registerCompanySchema = Joi.object({
 
 export const deleteCompanySchema = Joi.object({
     company_ids: Joi.array().required().messages({
-        "any.required": "company_ids Name is required."
+        "any.required": "company_ids is required."
     }),
 });
+
+export const updateStatusCompanySchema = Joi.object({
+    company_id: Joi.string().required().messages({
+        "any.required": "company_id is required."
+    }),
+    status: Joi.number().required().messages({
+        "any.required": "company_id is required."
+    }),
+});
+
+
 
 export const updateCompanySchema = Joi.object({
     company_name: Joi.string().required().messages({
@@ -78,4 +89,6 @@ export const updateCompanySchema = Joi.object({
     }),
      
 });
+
+
 

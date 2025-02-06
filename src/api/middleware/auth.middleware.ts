@@ -64,7 +64,6 @@ export const protectedRoute = async(req:Request, res:Response, next: NextFunctio
         
         if (req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];
-            console.log(token);
         }
         else {
             token = req.headers.authorization;

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { Types } from 'mongoose';
+import { loggerMsg } from "../../lib/logger";
 import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
-import { adminUserList,storeUser,updateUser } from "../../domain/models/user.model";
+import { adminUserList,storeUser,updateUser,updateStatus } from "../../domain/models/user.model";
 import userSchema from "../../domain/schema/user.schema";
 import nodemailer from 'nodemailer';
 import bcrypt from "bcrypt";
@@ -9,7 +10,7 @@ import bcrypt from "bcrypt";
 export const getAdminUser = async (req: Request, res: Response) => {
     try {
         const { page = 1, pageSize = 10, searchQuery = "" } = req.query;
-        adminUserList(req.body,
+        adminUserList(req.user,req.body,
             parseInt(page as string),
             parseInt(pageSize as string),
             searchQuery as string, (error:any, result:any) => {
@@ -28,13 +29,31 @@ export const getAdminUser = async (req: Request, res: Response) => {
     }
 }
 
+
+export const updateUserStatus = async (req: Request, res: Response) => {
+    try {
+
+        updateStatus(req.body, (error: any, result: any) => {
+            if (error) {
+                return ErrorResponse(res, error.message);
+            }
+
+            return successResponse(res, "Status Updated", { result });
+        });
+
+    } catch (error) {
+        return ErrorResponse(res, "An error occurred during event retrieval.");
+    }
+}
+
+
 export const storeAdminUser = async (req: Request, res: Response) => {
     try {
+        
          const { name, email, password, profilePicture,status } = req.body;
-            storeUser(req.body, (error:any, result:any) => {
+            storeUser(req.user,req.body, (error:any, result:any) => {
                     if (error) {
                         return ErrorResponse(res,'An unexpected error occurred.')
-                        
                     }
                     return successResponse(res, 'success',  result)
                 });
@@ -105,16 +124,23 @@ export const checkEmailUser = async (req: Request, res: Response) => {
 
 export const deleteAdminUser = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const user  = await userSchema.findById(id);          
-        if (!user) {
-            return ErrorResponse(res, "User not found")
+        const { users_ids } = req.body; 
+
+        if (!users_ids || !Array.isArray(users_ids) || users_ids.length === 0) {
+            return ErrorResponse(res, "Please provide at least one valid company ID.");
         }
-         await userSchema.findByIdAndDelete(id);
-        return successResponse(res, 'User deleted successfully',[])   
+
+        const result = await userSchema.deleteMany({ _id: { $in: users_ids } });
+
+        if (result.deletedCount === 0) {
+            return ErrorResponse(res, "No User found with the provided IDs.");
+        }
+
+        return successResponse(res, `Successfully deleted  User(ies).`,result.deletedCount);
+
     } catch (error) {
-        return  ErrorResponse(res,'An error occurred during user registration.')
-    }           
+        return ErrorResponse(res, "An error occurred during event retrieval.");
+    }       
 }   
 
 export const forgetPassword = async (req: Request, res: Response) => {
