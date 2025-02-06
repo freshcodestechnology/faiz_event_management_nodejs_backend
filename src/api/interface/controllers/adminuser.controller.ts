@@ -231,3 +231,43 @@ export const setPassword = async (req: Request, res: Response) => {
     }           
 }   
 
+
+export const changePassword = async (req: Request, res: Response) => {
+    try {
+        const { old_password, new_password } = req.body;
+        const userId = req.user?.userId; 
+        if (!old_password || !new_password) {
+            return ErrorResponse(res, "Old password and new password are required.");
+        }
+
+        const user = await userSchema.findById(userId);
+        if (!user) {
+            return ErrorResponse(res, "User not found.");
+        }
+
+        const isMatch = await bcrypt.compare(old_password, user.password);
+        if (!isMatch) {
+            return ErrorResponse(res, "Old password is incorrect.");
+        }
+
+        if (old_password === new_password) {
+            return ErrorResponse(res, "New password cannot be the same as the old password.");
+        }
+
+        if (new_password.length < 6) {
+            return ErrorResponse(res, "New password must be at least 6 characters long.");
+        }
+
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        return successResponse(res, "Password changed successfully.", {});
+    } catch (error) {
+        console.error("Error in changePassword:", error);
+        return ErrorResponse(res, "An error occurred while changing the password.");
+    }
+};
+
+

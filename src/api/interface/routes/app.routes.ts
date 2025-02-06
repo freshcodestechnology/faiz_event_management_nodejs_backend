@@ -8,8 +8,8 @@ import { getSetting , updateSetting } from "../../interface/controllers/setting.
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails } from "../../interface/controllers/participantUser.controller";
-import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus} from "../../interface/controllers/adminuser.controller";
-import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema} from "../../utils/validation-schems/user.validation";
+import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
+import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
 import { adminEventSchema , adminUpdateEventSchema,deleteEventSchema} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
@@ -82,6 +82,9 @@ import { getParticipantDetailsSchema } from "../../utils/validation-schems/parti
             //forget password
             route.post("/forget-password",validateRequest(forgetPasswordSchema),forgetPassword);
             route.post("/set-password",validateRequest(setPasswordSchema),setPassword);
+
+            //changePasswordSchema
+            route.post("/change-password",protectedRoute,validateRequest(changePasswordSchema),changePassword);
             
 
         } catch (error) {

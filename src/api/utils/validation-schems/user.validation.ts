@@ -51,6 +51,15 @@ export const deleteUsersSchema = Joi.object({
     }),
 });
 
+export const changePasswordSchema = Joi.object({
+    old_password: Joi.string().required().messages({
+        "any.required": "Old Password sdsd is required."
+    }),
+    new_password: Joi.string().required().messages({
+        "any.required": "New Password is required."
+    }),
+});
+
 
 
 export const loginUserSchema = Joi.object({
