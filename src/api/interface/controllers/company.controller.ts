@@ -13,7 +13,7 @@ export const storeCompanyController = async (req: Request, res: Response) => {
                 return ErrorResponse(res, error.message);
             }
 
-            return successResponse(res, "Get Admin Event List", { result });
+            return successResponse(res, "Get Admin Company List", { result });
         });
 
     } catch (error) {
@@ -80,7 +80,7 @@ export const getCompany = async (req: Request, res: Response) => {
                         message: error instanceof Error ? error.message : "An unexpected error occurred."
                     });
                 }
-                return successResponse(res, 'Get Admin Event List', 
+                return successResponse(res, 'Get Company List List', 
                     result,
                 )
             });
