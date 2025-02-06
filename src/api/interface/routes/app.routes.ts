@@ -8,8 +8,8 @@ import { getSetting , updateSetting } from "../../interface/controllers/setting.
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany } from "../../interface/controllers/company.controller";
 
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails } from "../../interface/controllers/participantUser.controller";
-import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser} from "../../interface/controllers/adminuser.controller";
-import { registerUserSchema,loginUserSchema,updateUserSchema } from "../../utils/validation-schems/user.validation";
+import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword} from "../../interface/controllers/adminuser.controller";
+import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema } from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
 import { adminEventSchema , adminUpdateEventSchema} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
@@ -76,6 +76,11 @@ import { getParticipantDetailsSchema } from "../../utils/validation-schems/parti
             route.post("/update-company-details/:company_id", protectedRoute, validateRequest(updateCompanySchema),updateCompanyController)
             route.post("/delete-company", protectedRoute,validateRequest(deleteCompanySchema), deleteCompany)
             
+            //forget password
+            route.post("/forget-password",validateRequest(forgetPasswordSchema),forgetPassword);
+            route.post("/set-password",validateRequest(setPasswordSchema),setPassword);
+            
+
         } catch (error) {
             // Log any errors that occur during route definition
             console.log(error, 'warn')

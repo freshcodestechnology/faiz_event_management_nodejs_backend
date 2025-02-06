@@ -12,9 +12,12 @@ export interface IUser extends Document {
     password: string; //Password
     profilePicture:string//User profile
     role:string//User profile
+    otp?:string
+    otpExpires?: Date;
     status: boolean; // Online status
     createdAt: Date; // Timestamp of account creation
     updatedAt: Date; // Timestamp of last account update
+    
 }
 
 // define the user schema
@@ -28,6 +31,8 @@ const userSchema:Schema = new Schema<IUser>({
     password: { type: String },
     profilePicture: { type: String },
     role: { type: String }, 
+    otp:{ type: String },
+    otpExpires: { type: Date },
     status: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

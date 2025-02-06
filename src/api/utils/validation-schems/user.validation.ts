@@ -49,3 +49,25 @@ export const loginUserSchema = Joi.object({
         "any.required": "password is required."
     })
 });
+
+export const forgetPasswordSchema = Joi.object({
+    email: Joi.string().required().messages({
+        "string.email": "Please enter a valid email.",
+        "any.required": "email is required."
+    })
+});
+export const setPasswordSchema = Joi.object({
+    email: Joi.string().required().messages({
+        "string.email": "Please enter a valid email.",
+        "any.required": "email is required."
+    }),
+    otp: Joi.string().required().messages({
+        "string.otp": "Please enter a valid otp.",
+        "any.required": "otp is required."
+    }),
+    password: Joi.string().required().messages({
+        "string.password": "Please enter a valid password.",
+        "any.required": "password is required."
+    })
+});
+

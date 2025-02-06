@@ -3,6 +3,8 @@ import { Types } from 'mongoose';
 import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import { adminUserList,storeUser,updateUser } from "../../domain/models/user.model";
 import userSchema from "../../domain/schema/user.schema";
+import nodemailer from 'nodemailer';
+import bcrypt from "bcrypt";
 
 export const getAdminUser = async (req: Request, res: Response) => {
     try {
@@ -115,5 +117,91 @@ export const deleteAdminUser = async (req: Request, res: Response) => {
     }           
 }   
 
+export const forgetPassword = async (req: Request, res: Response) => {
+    try {
 
+        const generateOTP = (): string => Math.floor(100000 + Math.random() * 900000).toString();
+        const transporter = nodemailer.createTransport({
+                host: "in-v3.mailjet.com", 
+                port: 587, 
+                secure: false, 
+                auth: {
+                    user: "4ef2e51393517b21366a21e504b1c3b1", 
+                    pass: "bef9b85cbbe942dc8bce3d8fcddea51a", 
+                },
+                });
+
+        const { email } = req.body;
+
+        // Validate email input
+        if (!email) {
+            return ErrorResponse(res, "Email is required.");
+        }
+
+        // Find user by email
+        const user = await userSchema.findOne({ email });
+
+        if (!user) {
+            return ErrorResponse(res, "User not found.");
+        }
+
+        // Generate OTP
+        const otp = generateOTP();
+        user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+        user.otp = otp;
+        await user.save();
+
+        const mailOptions = {
+            from: "rentaltest0@gmail.com", // Your sender email
+            to: user.email,
+            subject: "Password Reset OTP",
+            text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
+            html: `<p>Your OTP for password reset is: <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
+        };
+
+        // Send email
+        await transporter.sendMail(mailOptions);
+
+        return successResponse(res, 'forget password OTP successfully',[])   
+    } catch (error) {
+        console.log(error);
+        return  ErrorResponse(res,'An error occurred during user registration.')
+    }           
+}   
+
+export const setPassword = async (req: Request, res: Response) => {
+    try {
+        const { email, otp, password } = req.body;
+        // console.log(otp,password);
+        if (!email || !otp || !password) {
+            return ErrorResponse(res, "Email, OTP, and new password are required.");
+        }
+
+        const user = await userSchema.findOne({ email });
+
+        if (!user) {
+            return ErrorResponse(res, "User not found.");
+        }
+
+        if (user.otp !== otp) {
+            return ErrorResponse(res, "Invalid OTP.");
+        }
+
+        if (user.otpExpires && user.otpExpires < new Date()) {
+            return ErrorResponse(res, "OTP has expired.");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        user.password = hashedPassword;
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        return successResponse(res, "Password updated successfully.",[]); 
+    } catch (error) {
+        console.log(error);
+        return  ErrorResponse(res,'An error occurred during user registration.')
+    }           
+}   
 
