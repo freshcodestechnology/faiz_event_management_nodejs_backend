@@ -5,6 +5,8 @@ import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventLi
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
+import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany } from "../../interface/controllers/company.controller";
+
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema } from "../../utils/validation-schems/user.validation";
@@ -12,6 +14,7 @@ import { EventParticipantUsers } from "../../utils/validation-schems/event_parti
 import { adminEventSchema , adminUpdateEventSchema} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
 import { settingSchema } from "../../utils/validation-schems/setting.validation";
+import { updateCompanySchema , registerCompanySchema,deleteCompanySchema } from "../../utils/validation-schems/company.validation";
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 
 // import { getUsersProfiles, imageCaptionUpdate, imageUpload, removeImages, removeSingleImage, setProfileImage, updateUserProfile } from "../controllers/user.controller";
@@ -66,6 +69,12 @@ import { getParticipantDetailsSchema } from "../../utils/validation-schems/parti
             route.post('/update-button-setting',validateRequest(settingSchema),updateSetting)
             route.post('/get-praticipent-details',validateRequest(getParticipantDetailsSchema),getParticipantDetails)
             
+            //company Module urls
+            route.post("/store-company", protectedRoute ,validateRequest(registerCompanySchema),storeCompanyController);
+            route.get('/get-company-list',protectedRoute ,getCompany)
+            route.get('/get-company-details/:company_id',protectedRoute ,getCompanyDetails)
+            route.post("/update-company-details/:company_id", protectedRoute, validateRequest(updateCompanySchema),updateCompanyController)
+            route.post("/delete-company", protectedRoute,validateRequest(deleteCompanySchema), deleteCompany)
             
         } catch (error) {
             // Log any errors that occur during route definition
