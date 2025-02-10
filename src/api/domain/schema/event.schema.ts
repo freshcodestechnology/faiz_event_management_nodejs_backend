@@ -2,6 +2,7 @@ import { string } from "joi";
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IEvent extends Document {
+    company_id : string;
     company_name: string;
     event_title: string;
     event_slug: string;
@@ -24,6 +25,7 @@ export interface IEvent extends Document {
 }
 
 const eventSchema: Schema = new Schema<IEvent>({
+    company_id: { type: String, required: false },
     company_name: { type: String, required: true },
     event_title: { type: String, required: true },
     event_slug: { type: String, required: true, unique: true },

@@ -73,7 +73,7 @@ import { getParticipantDetailsSchema } from "../../utils/validation-schems/parti
             
             //company Module urls
             route.post("/store-company", protectedRoute ,validateRequest(registerCompanySchema),storeCompanyController);
-            route.get('/get-company-list',protectedRoute ,getCompany)
+            route.get('/get-company-list' ,getCompany)
             route.get('/get-company-details/:company_id',protectedRoute ,getCompanyDetails)
             route.post("/update-company-details/:company_id", protectedRoute, validateRequest(updateCompanySchema),updateCompanyController)
             route.post("/delete-company", protectedRoute,validateRequest(deleteCompanySchema), deleteCompany)

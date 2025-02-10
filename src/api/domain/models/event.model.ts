@@ -53,7 +53,7 @@ interface loginUserData{
     company_id:string;
 }
 
-export const storeEvent = async (eventData: eventData, callback: (error: any, result: any) => void) => {
+export const storeEvent = async (loginUserData:loginUserData,eventData: eventData, callback: (error: any, result: any) => void) => {
     try {
         const storage = multer.diskStorage({
             destination: (req, file, cb) => {
@@ -64,8 +64,9 @@ export const storeEvent = async (eventData: eventData, callback: (error: any, re
                 cb(null, uniqueSuffix + path.extname(file.originalname));
             },
         });
-
+        console.log(loginUserData.company_id);
         const newEvent = new eventSchema({
+            company_id:loginUserData.company_id,
             company_name: eventData.company_name,
             event_title: eventData.event_title,
             event_slug: convertToSlug(eventData.event_slug),
@@ -84,6 +85,7 @@ export const storeEvent = async (eventData: eventData, callback: (error: any, re
         });
 
         const savedEvent = await newEvent.save();
+        console.log(newEvent);
         const eventId = savedEvent._id;
 
         const [visitReasonResult, companyActivityResult] = await Promise.all([

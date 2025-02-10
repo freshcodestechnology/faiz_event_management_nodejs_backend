@@ -128,7 +128,7 @@ export const getAdminEvents = async (req: Request, res: Response) => {
 
         const { company_name, event_title, event_slug, reason_for_visiting,event_description,start_date, end_date,google_map_url,address,event_type,company_activity,organizer_name,organizer_email,organizer_phone,sort_des_about_event} = req.body;
         
-        storeEvent(req.body, (error:any, result:any) => {
+        storeEvent(req.user,req.body, (error:any, result:any) => {
             if (error) {
                 return res.status(500).json({
                     code: "INTERNAL_SERVER_ERROR",
@@ -179,7 +179,7 @@ export const storeAdminEvent = async (req: Request, res: Response) => {
             sort_des_about_event,
         } = req.body;
 
-        storeEvent(req.body, (error: any, result: any) => {
+        storeEvent(req.user,req.body, (error: any, result: any) => {
             if (error) {
                 return ErrorResponse(res, error.message);
             }
