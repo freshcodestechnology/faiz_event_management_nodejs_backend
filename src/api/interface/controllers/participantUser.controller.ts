@@ -577,6 +577,7 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
             } else {
                 res.status(404).send('File not found');
             }
+
         }else{
             return successResponse(res, 'Thank You For Visit this Event.', []);
         }
@@ -586,5 +587,75 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
             status: "error",
             message: "An error occurred while generating the PDF.",
         });
+    }
+};
+
+export const getParticipantDetailsScanner = async (req: Request, res: Response) => {
+    try {
+
+        const { event_slug, user_token ,status} = req.body;
+
+        const event_details = await eventSchema.findOne({ 
+            slug: event_slug,    
+        });
+
+        if (!event_details) {
+            return ErrorResponse(res, "Event Details Not Found");
+        }
+
+        const event_participant_details = await eventParticipant.findOne({ 
+            token: user_token,       
+            event_id: event_details._id 
+        });
+
+        if (!event_participant_details) {
+            return ErrorResponse(res, "Participant User Not Found");
+        }
+
+        if (status === "checkin") {
+
+            if(event_participant_details.status == "checked_out"){
+                return ErrorResponse(res, "Can't check in because you are already checked out.");
+            }
+
+            if(event_participant_details.status == "checked_in"){
+                return ErrorResponse(res, "You are already checked in.");
+            }
+
+            event_participant_details.status = "checked_in";
+            event_participant_details.checkin_time = new Date();
+        } 
+        else if (status === "checkout") {
+            if(event_participant_details.status == "checked_out"){
+                return ErrorResponse(res, "You are already checked out.");
+            }
+            event_participant_details.status = "checked_out";
+            event_participant_details.checkout_time = new Date();
+        } 
+        else {
+            return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
+        }
+
+
+        const participant_details = await participantUsers.findOne({ _id: event_participant_details?.participant_user_id });
+
+        if (!participant_details) {
+            return ErrorResponse(res, "Participant User Not Found");
+        }
+
+        const resutl = [];
+        resutl.push(event_participant_details);
+        resutl.push(participant_details);
+        return successResponse(res, 'Participant User Details', resutl);
+
+    } catch (error) {
+
+        console.error("Error generating PDF:", error);
+
+        return res.status(500).json({
+            status: "error",
+            message: "An error occurred while generating the PDF.",
+        });
+
     }
 };

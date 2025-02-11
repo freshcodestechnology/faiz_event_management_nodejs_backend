@@ -5,9 +5,10 @@ import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventLi
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
+import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine } from "../../interface/controllers/scannerMachine.controller";
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
-import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails } from "../../interface/controllers/participantUser.controller";
+import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails,getParticipantDetailsScanner } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
@@ -16,6 +17,9 @@ import { uploadImagesFile } from "../../helper/helper";
 import { settingSchema } from "../../utils/validation-schems/setting.validation";
 import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,updateStatusCompanySchema} from "../../utils/validation-schems/company.validation";
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
+import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
+import { scannerData } from "../../utils/validation-schems/scannerData.validation";
+
 
 // import { getUsersProfiles, imageCaptionUpdate, imageUpload, removeImages, removeSingleImage, setProfileImage, updateUserProfile } from "../controllers/user.controller";
     const route = express.Router();
@@ -78,10 +82,22 @@ import { getParticipantDetailsSchema } from "../../utils/validation-schems/parti
             route.post("/update-company-details/:company_id", protectedRoute, validateRequest(updateCompanySchema),updateCompanyController)
             route.post("/delete-company", protectedRoute,validateRequest(deleteCompanySchema), deleteCompany)
             route.post("/update-company-status", protectedRoute,validateRequest(updateStatusCompanySchema), updateCompanyStatus)
+            route.post("/get-scanner-data-details",protectedRoute,validateRequest(scannerData), getParticipantDetailsScanner)
+
             
+
             //forget password
             route.post("/forget-password",validateRequest(forgetPasswordSchema),forgetPassword);
             route.post("/set-password",validateRequest(setPasswordSchema),setPassword);
+
+            //scanner machine module
+            route.post("/add-scanner-machine",protectedRoute,validateRequest(addScannerMachineSchema),storeScannerMachine);
+            route.post("/update-scanner-machine",protectedRoute,validateRequest(updateScannerMachineSchema),updateScannerMachine);
+            route.post("/get-scanner-machine-list",protectedRoute,setPassword);
+            route.post("/delete-scanner-machine",protectedRoute,validateRequest(deleteScannerMachineSchema),deleteScannerMachine);
+            route.get("/get-scanner-machine-list",protectedRoute,getScannerMachine);
+            route.post("/assign-scanner-machine",protectedRoute,validateRequest(assignScannerMachineSchema),assignScannerMachine);
+            route.post("/remove-assign-scanner-machine",protectedRoute,validateRequest(deleteScannerMachineSchema),removeAssignScannerMachine);
 
             //changePasswordSchema
             route.post("/change-password",protectedRoute,validateRequest(changePasswordSchema),changePassword);

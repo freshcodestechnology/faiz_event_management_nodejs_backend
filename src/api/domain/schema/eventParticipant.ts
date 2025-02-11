@@ -8,6 +8,9 @@ export interface IEventParticipant extends Document {
     referral_source : string;
     company_activity : string;
     qr_image: string;
+    status: string;
+    checkin_time: Date;
+    checkout_time: Date;
 }
 
 const EventParticipantSchema: Schema = new Schema<IEventParticipant>(
@@ -20,6 +23,9 @@ const EventParticipantSchema: Schema = new Schema<IEventParticipant>(
         referral_source : { type: String, required: true },
         company_activity : { type: String, required: true },
         qr_image: { type: String, required: false },
+        status: { type: String, required: false },
+        checkin_time: { type: Date, required: false },
+        checkout_time: { type: Date, required: false },
     },
     {
         collection: "event_participant", 
