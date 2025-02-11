@@ -5,7 +5,7 @@ import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventLi
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
-import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine } from "../../interface/controllers/scannerMachine.controller";
+import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine,getScannerMachineDetails,checkUniqueMachineId } from "../../interface/controllers/scannerMachine.controller";
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails,getParticipantDetailsScanner } from "../../interface/controllers/participantUser.controller";
@@ -98,7 +98,8 @@ import { scannerData } from "../../utils/validation-schems/scannerData.validatio
             route.get("/get-scanner-machine-list",protectedRoute,getScannerMachine);
             route.post("/assign-scanner-machine",protectedRoute,validateRequest(assignScannerMachineSchema),assignScannerMachine);
             route.post("/remove-assign-scanner-machine",protectedRoute,validateRequest(deleteScannerMachineSchema),removeAssignScannerMachine);
-
+            route.get('/get-scanner-machine/:scanner_machine_id',protectedRoute ,getScannerMachineDetails)
+            route.get("/check-scanner-machine", protectedRoute ,checkUniqueMachineId);
             //changePasswordSchema
             route.post("/change-password",protectedRoute,validateRequest(changePasswordSchema),changePassword);
             

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Types } from 'mongoose';
 import { successCreated, successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import scannermachineSchema from "../../domain/schema/scannerMachine.schema";
 import { storeScannerMachineModel, updateScannerMachineModel ,scannerMachineList,assignScannerMachineModel} from "../../domain/models/scannerMachine.model";
@@ -20,6 +21,54 @@ export const storeScannerMachine = async (req: Request, res: Response) => {
        
     }
 };
+
+export const getScannerMachineDetails = async (req: Request, res: Response) => {
+    try {
+        
+        const { scanner_machine_id } = req.params;
+        const scanner_machine_details = await scannermachineSchema.findById(scanner_machine_id);
+        if (!scanner_machine_details) {
+            return ErrorResponse(res, "User not found")
+        }
+        return successResponse(res, 'Get Admin User List',scanner_machine_details)
+        
+    } catch (error) {
+       
+    }
+};
+
+export const checkUniqueMachineId = async (req: Request, res: Response) => {
+    try {
+        const { machine_unique_id, id } = req.query; 
+
+        if (!machine_unique_id) {
+            return res.status(400).json({ success: false, message: 'machine_unique_id is required.' });
+        }
+       
+          if (id && typeof id === 'string') {
+            if (!Types.ObjectId.isValid(id)) {
+                return ErrorResponse(res, 'Invalid user ID format.');
+            }
+        }
+
+        let scannermachine;
+        if (id && typeof id === 'string') {
+            scannermachine = await scannermachineSchema.findOne({ scanner_unique_id: machine_unique_id, _id: { $ne: id } });
+        } else {
+            scannermachine = await scannermachineSchema.findOne({ scanner_unique_id: machine_unique_id });
+        }
+
+        if (scannermachine) {
+            return res.status(409).json({ success: false, message: 'scannermachine is already in use.' });
+        }
+
+        return res.status(200).json({ success: true, message: 'scannermachine is available.' });
+    } catch (error) {
+        console.error('Error in checkEmailUser:', error);
+        return res.status(500).json({ success: false, message: 'An internal server error occurred.' });
+    }
+};
+
 
 export const updateScannerMachine = async (req: Request, res: Response) => {
     try {
