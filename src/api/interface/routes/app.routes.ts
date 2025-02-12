@@ -8,9 +8,10 @@ import { getSetting , updateSetting } from "../../interface/controllers/setting.
 import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine,getScannerMachineDetails,checkUniqueMachineId } from "../../interface/controllers/scannerMachine.controller";
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
+import { getEventDetailsSlug,scannerPageLogin } from "../../interface/controllers/ScannerPage.controller";
 import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails,getParticipantDetailsScanner } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
-import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema} from "../../utils/validation-schems/user.validation";
+import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema,scannerPageLoginUserSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
 import { adminEventSchema , adminUpdateEventSchema,deleteEventSchema} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
@@ -19,6 +20,8 @@ import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,update
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
 import { scannerData } from "../../utils/validation-schems/scannerData.validation";
+import { getEventDetailValidation } from "../../utils/validation-schems/scannerPage.validation";
+
 
 
 // import { getUsersProfiles, imageCaptionUpdate, imageUpload, removeImages, removeSingleImage, setProfileImage, updateUserProfile } from "../controllers/user.controller";
@@ -84,8 +87,6 @@ import { scannerData } from "../../utils/validation-schems/scannerData.validatio
             route.post("/update-company-status", protectedRoute,validateRequest(updateStatusCompanySchema), updateCompanyStatus)
             route.post("/get-scanner-data-details",protectedRoute,validateRequest(scannerData), getParticipantDetailsScanner)
 
-            
-
             //forget password
             route.post("/forget-password",validateRequest(forgetPasswordSchema),forgetPassword);
             route.post("/set-password",validateRequest(setPasswordSchema),setPassword);
@@ -100,6 +101,12 @@ import { scannerData } from "../../utils/validation-schems/scannerData.validatio
             route.post("/remove-assign-scanner-machine",protectedRoute,validateRequest(deleteScannerMachineSchema),removeAssignScannerMachine);
             route.get('/get-scanner-machine/:scanner_machine_id',protectedRoute ,getScannerMachineDetails)
             route.get("/check-scanner-machine", protectedRoute ,checkUniqueMachineId);
+
+            route.post('/get-event-details-slug',validateRequest(getEventDetailValidation),getEventDetailsSlug);
+            
+            //scannerPageLogin
+            route.post("/scanner-page-login",validateRequest(scannerPageLoginUserSchema),scannerPageLogin);
+
             //changePasswordSchema
             route.post("/change-password",protectedRoute,validateRequest(changePasswordSchema),changePassword);
             

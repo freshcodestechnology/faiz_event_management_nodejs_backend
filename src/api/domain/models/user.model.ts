@@ -1,8 +1,10 @@
 import { loggerMsg } from "../../lib/logger";
 import userSchema from "../schema/user.schema";
 import companySchema from "../schema/company.schema";
+import Scannermachine from "../schema/scannerMachine.schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 interface userData{
     email: string;
@@ -40,6 +42,16 @@ interface userStatus{
     user_id:string;
     status:number;
 }
+
+interface scannerUserLoginData{
+    email:string;
+    password:string;
+    machine_id:string;
+    type:string;
+    subdomain:string;
+}
+
+
 
 export const updateStatus = async (userStatus: userStatus, callback: (error: any, result: any) => void) => {
     try {
@@ -149,6 +161,99 @@ export const userLogin = async (userData: userLoginData,  callback: (error:any, 
             
             return callback(null, result);
         }
+
+    } catch (error) {
+        return callback(error, null);
+    }
+};
+
+export const scannerLogin = async (userData: scannerUserLoginData,  callback: (error:any, result: any) => void) => {
+    try {
+
+        const user = await userSchema.findOne({ email: { $regex: new RegExp(`^${userData.email}$`, 'i') } });
+        if (!user) {
+            const error = new Error("User not found with this email.");
+            return callback(error, null);
+        };
+
+        const company_name = userData.subdomain;
+        const subdomain = userData.subdomain;
+        const company_details = await companySchema.findOne({ subdomain });
+
+        if (user.role == "superadmin") {
+            const error = new Error("You dont have access to login in this page");
+            return callback(error, null);
+        }
+
+        if (user.status === 0) {
+            const error = new Error("User is inactive. Contact admin.");
+            return callback(error, null);
+        }
+        if(!company_details){
+            const error = new Error("Company not Found");
+            return callback(error, null);
+        }
+        if(company_details.status === 0){
+            const error = new Error("This Company Blocked By Admin Plese contact to admin");
+            return callback(error, null);
+        }
+
+        if (company_details?.id != user.company_id) {
+            const error = new Error("You dont have access to login in this admin panel");
+            return callback(error, null);
+        }
+        const machine_id = userData.machine_id;
+        console.log(machine_id)
+        const objectId = mongoose.Types.ObjectId.isValid(machine_id) ? new mongoose.Types.ObjectId(machine_id) : null;
+
+        if (!objectId) {
+            return callback(new Error("Invalid machine ID format."), null);
+        }
+        console.log(objectId)
+        const machine_details = await Scannermachine.findById({ _id: objectId });
+        console.log(machine_details);
+        if (!machine_details) {
+            return callback(new Error("Machine is not assigned to this company."), null);
+        }
+
+        if(machine_details.company_id != user.company_id){
+            const error = new Error("Machine Not assign with this company.");
+            return callback(error, null);
+        }
+
+        if (typeof machine_details.expired_date === "string") {
+            machine_details.expired_date = new Date(machine_details.expired_date);
+        }
+        
+        // Now you can safely compare it with the current date
+        if (machine_details.expired_date < new Date()) {
+            return callback(new Error("Machine validity has expired. Please contact the administrator."), null);
+        }     
+
+        const isPasswordCorrect = await bcrypt.compare(userData.password, user.password);
+        if (!isPasswordCorrect) {
+            const error = new Error("Incorrect password.");
+            return callback(error, null);
+        };
+
+        const token = jwt.sign(
+            { machine_id: userData.machine_id, email: user.email ,name:user.name,type:userData.type},
+            process.env.JWT_SECRET_KEY || "defaultsecretkey", 
+            { expiresIn: "24h" } 
+        );
+
+        const result = {
+            message: "Login successful",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                status: user.status,
+            },
+            token: token,
+        };
+        return callback(null, result);
 
     } catch (error) {
         return callback(error, null);

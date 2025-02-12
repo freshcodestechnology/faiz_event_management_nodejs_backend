@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { machine } from 'os';
 
 export const registerUserSchema = Joi.object({
     email: Joi.string().required().messages({
@@ -77,6 +78,32 @@ export const loginUserSchema = Joi.object({
         "any.required": "subdomain is required."
     })
 });
+
+export const scannerPageLoginUserSchema = Joi.object({
+   
+    email: Joi.string().required().messages({
+        "string.email": "Please enter a valid email.",
+        "any.required": "email is required."
+    }),
+    password: Joi.string().required().messages({
+        "string.password": "Please enter a valid password.",
+        "any.required": "password is required."
+    }),
+    subdomain: Joi.string().messages({
+        "string.password": "Please enter a valid subdomain.",
+        "any.required": "subdomain is required."
+    }),
+    machine_id: Joi.string().messages({
+        "string.password": "Please enter a valid subdomain.",
+        "any.required": "Machine Id is required."
+    }),
+    type: Joi.string().messages({
+        "string.password": "Please enter a valid type.",
+        "any.required": "Machine type is required."
+    })
+});
+
+loginUserSchema
 
 export const forgetPasswordSchema = Joi.object({
     email: Joi.string().required().messages({
