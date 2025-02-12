@@ -111,14 +111,19 @@ export const scannerMachineList = async (scannerMachineData: updateScannerMachin
 
 export const assignScannerMachineModel = async (scannerData: assignScannerMachineData, callback: (error: any, result: any) => void) => {
     try {
-       const company_id = scannerData.company_id;
-       const expired_date = scannerData.expired_date;
-       const password = scannerData.password;
-       const hashedPassword = await bcrypt.hash(password, 10);
-         const updateResult = await scannermachineSchema.updateMany(
+        const company_id = scannerData.company_id;
+        const expired_date = scannerData.expired_date;
+        const password = scannerData.password;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const updateResult = await scannermachineSchema.updateMany(
             { _id: { $in: scannerData.scannerMachine_ids } }, 
-            { $set: { company_id, expired_date } },
-            { $set: { password, hashedPassword } } 
+            { 
+                $set: { 
+                    company_id, 
+                    expired_date, 
+                    password: hashedPassword  
+                }
+            }
         );
 
         if (updateResult.modifiedCount === 0) {
