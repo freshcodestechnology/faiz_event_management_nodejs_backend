@@ -608,7 +608,7 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
             return ErrorResponse(res, "Participant User Not Found");
         }
 
-        if (status === "checkin") {
+        if (status == "0") {
 
             if(event_participant_details.status == "checked_out"){
                 return ErrorResponse(res, "Can't check in because you are already checked out.");
@@ -621,7 +621,7 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
             event_participant_details.status = "checked_in";
             event_participant_details.checkin_time = new Date();
         } 
-        else if (status === "checkout") {
+        else if (status == "1") {
             if(event_participant_details.status == "checked_out"){
                 return ErrorResponse(res, "You are already checked out.");
             }
@@ -631,7 +631,6 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
         else {
             return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
         }
-
 
         const participant_details = await participantUsers.findOne({ _id: event_participant_details?.participant_user_id });
 

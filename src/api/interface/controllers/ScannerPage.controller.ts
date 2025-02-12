@@ -61,7 +61,7 @@ import bcrypt from "bcrypt";
 
     export const scannerPageLogin = async (req: Request, res: Response) => {
         try {
-            const { email, password,machine_id,type,subdomain } = req.body;
+            const { password,machine_id,type,subdomain } = req.body;
     
             scannerLogin(req.body, (error:any, result:any) => {
                 if (error) {

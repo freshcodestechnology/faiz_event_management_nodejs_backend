@@ -170,25 +170,10 @@ export const userLogin = async (userData: userLoginData,  callback: (error:any, 
 export const scannerLogin = async (userData: scannerUserLoginData,  callback: (error:any, result: any) => void) => {
     try {
 
-        const user = await userSchema.findOne({ email: { $regex: new RegExp(`^${userData.email}$`, 'i') } });
-        if (!user) {
-            const error = new Error("User not found with this email.");
-            return callback(error, null);
-        };
-
         const company_name = userData.subdomain;
         const subdomain = userData.subdomain;
         const company_details = await companySchema.findOne({ subdomain });
 
-        if (user.role == "superadmin") {
-            const error = new Error("You dont have access to login in this page");
-            return callback(error, null);
-        }
-
-        if (user.status === 0) {
-            const error = new Error("User is inactive. Contact admin.");
-            return callback(error, null);
-        }
         if(!company_details){
             const error = new Error("Company not Found");
             return callback(error, null);
@@ -198,26 +183,19 @@ export const scannerLogin = async (userData: scannerUserLoginData,  callback: (e
             return callback(error, null);
         }
 
-        if (company_details?.id != user.company_id) {
-            const error = new Error("You dont have access to login in this admin panel");
-            return callback(error, null);
-        }
         const machine_id = userData.machine_id;
-        console.log(machine_id)
         const objectId = mongoose.Types.ObjectId.isValid(machine_id) ? new mongoose.Types.ObjectId(machine_id) : null;
 
         if (!objectId) {
             return callback(new Error("Invalid machine ID format."), null);
         }
-        console.log(objectId)
         const machine_details = await Scannermachine.findById({ _id: objectId });
-        console.log(machine_details);
         if (!machine_details) {
             return callback(new Error("Machine is not assigned to this company."), null);
         }
 
-        if(machine_details.company_id != user.company_id){
-            const error = new Error("Machine Not assign with this company.");
+        if (company_details?.id != machine_details.company_id) {
+            const error = new Error("You dont have access to login in this admin panel");
             return callback(error, null);
         }
 
@@ -225,32 +203,25 @@ export const scannerLogin = async (userData: scannerUserLoginData,  callback: (e
             machine_details.expired_date = new Date(machine_details.expired_date);
         }
         
-        // Now you can safely compare it with the current date
         if (machine_details.expired_date < new Date()) {
             return callback(new Error("Machine validity has expired. Please contact the administrator."), null);
         }     
 
-        const isPasswordCorrect = await bcrypt.compare(userData.password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(userData.password, machine_details.password);
         if (!isPasswordCorrect) {
             const error = new Error("Incorrect password.");
             return callback(error, null);
         };
 
         const token = jwt.sign(
-            { machine_id: userData.machine_id, email: user.email ,name:user.name,type:userData.type},
+            { machine_id: userData.machine_id,type:userData.type},
             process.env.JWT_SECRET_KEY || "defaultsecretkey", 
             { expiresIn: "24h" } 
         );
 
         const result = {
             message: "Login successful",
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                status: user.status,
-            },
+            machine_details:machine_details,
             token: token,
         };
         return callback(null, result);
