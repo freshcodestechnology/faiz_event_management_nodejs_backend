@@ -632,6 +632,8 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
         // else {
         //     return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
         // }
+        const baseUrl = env.BASE_URL;
+        event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
 
         const participant_details = await participantUsers.findOne({ _id: event_participant_details?.participant_user_id });
 
