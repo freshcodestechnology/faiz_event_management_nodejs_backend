@@ -7,6 +7,7 @@ export interface IscannermachineSchema extends Document {
     status:string;
     company_id:string;
     expired_date:Date;
+    password:string;
 }
 
 const scannermachineSchema: Schema = new Schema<IscannermachineSchema>({
@@ -15,6 +16,7 @@ const scannermachineSchema: Schema = new Schema<IscannermachineSchema>({
     status:{ type: String, required: false,default:"1" },
     company_id:{ type: String, required: false },
     expired_date:{ type: Date, required: false },
+    password:{ type: String, required: false },
 },
 {
     timestamps: true,

@@ -160,7 +160,7 @@ export const removeAssignScannerMachine = async (req: Request, res: Response) =>
 
         const result = await scannermachineSchema.updateMany(
             { _id: { $in: scannerMachine_ids } }, 
-            { $set: { company_id: null, expired_date: null } } 
+            { $set: { company_id: null, expired_date: null ,password:null} } 
         );
 
         return successResponse(res, `Successfully deleted  Scanner Machine(ies).`,result.modifiedCount);

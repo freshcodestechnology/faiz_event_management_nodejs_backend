@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import bcrypt from "bcrypt";
 import scannermachineSchema from "../schema/scannerMachine.schema";
 import companySchema from "../schema/company.schema";
 interface scannerMachineData{
@@ -13,12 +13,11 @@ interface updateScannerMachineData{
     scanner_unique_id:string;
 }
 
-
-
 interface assignScannerMachineData{
     scannerMachine_ids:any;
     expired_date:any;
     company_id:string;
+    password:string;
 }
 
 export const storeScannerMachineModel = async (scannerData: scannerMachineData, callback: (error: any, result: any) => void) => {
@@ -114,9 +113,12 @@ export const assignScannerMachineModel = async (scannerData: assignScannerMachin
     try {
        const company_id = scannerData.company_id;
        const expired_date = scannerData.expired_date;
+       const password = scannerData.password;
+       const hashedPassword = await bcrypt.hash(password, 10);
          const updateResult = await scannermachineSchema.updateMany(
             { _id: { $in: scannerData.scannerMachine_ids } }, 
-            { $set: { company_id, expired_date } } 
+            { $set: { company_id, expired_date } },
+            { $set: { password, hashedPassword } } 
         );
 
         if (updateResult.modifiedCount === 0) {
