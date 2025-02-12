@@ -589,10 +589,11 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
 export const getParticipantDetailsScanner = async (req: Request, res: Response) => {
     try {
 
-        const { event_slug, user_token ,status} = req.body;
-
+        const { event_slug, user_token,status } = req.body;
+        console.log(event_slug)
+        console.log(req.body)
         const event_details = await eventSchema.findOne({ 
-            slug: event_slug,    
+            event_slug: event_slug,    
         });
 
         if (!event_details) {
@@ -608,29 +609,29 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
             return ErrorResponse(res, "Participant User Not Found");
         }
 
-        if (status == "0") {
+        // if (status == "0") {
 
-            if(event_participant_details.status == "checked_out"){
-                return ErrorResponse(res, "Can't check in because you are already checked out.");
-            }
+        //     if(event_participant_details.status == "checked_out"){
+        //         return ErrorResponse(res, "Can't check in because you are already checked out.");
+        //     }
 
-            if(event_participant_details.status == "checked_in"){
-                return ErrorResponse(res, "You are already checked in.");
-            }
+        //     if(event_participant_details.status == "checked_in"){
+        //         return ErrorResponse(res, "You are already checked in.");
+        //     }
 
-            event_participant_details.status = "checked_in";
-            event_participant_details.checkin_time = new Date();
-        } 
-        else if (status == "1") {
-            if(event_participant_details.status == "checked_out"){
-                return ErrorResponse(res, "You are already checked out.");
-            }
-            event_participant_details.status = "checked_out";
-            event_participant_details.checkout_time = new Date();
-        } 
-        else {
-            return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
-        }
+        //     event_participant_details.status = "checked_in";
+        //     event_participant_details.checkin_time = new Date();
+        // } 
+        // else if (status == "1") {
+        //     if(event_participant_details.status == "checked_out"){
+        //         return ErrorResponse(res, "You are already checked out.");
+        //     }
+        //     event_participant_details.status = "checked_out";
+        //     event_participant_details.checkout_time = new Date();
+        // } 
+        // else {
+        //     return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
+        // }
 
         const participant_details = await participantUsers.findOne({ _id: event_participant_details?.participant_user_id });
 
