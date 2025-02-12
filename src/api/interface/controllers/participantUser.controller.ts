@@ -329,8 +329,6 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
         const {event_id,user_token,type} = req.body;
         const token = user_token;
         
-
-        
         const event_participant_details = await eventParticipant.findOne({ 
             token: token,       
             event_id: event_id 
@@ -339,8 +337,6 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
         if (!event_participant_details) {
             return ErrorResponse(res, "Participant User not found");
         }
-
-        
 
         const event_details = await eventSchema.findOne({ _id: event_participant_details?.event_id });
         if (!event_details) {

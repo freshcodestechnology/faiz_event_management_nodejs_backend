@@ -85,7 +85,7 @@ import { getEventDetailValidation } from "../../utils/validation-schems/scannerP
             route.post("/update-company-details/:company_id", protectedRoute, validateRequest(updateCompanySchema),updateCompanyController)
             route.post("/delete-company", protectedRoute,validateRequest(deleteCompanySchema), deleteCompany)
             route.post("/update-company-status", protectedRoute,validateRequest(updateStatusCompanySchema), updateCompanyStatus)
-            route.post("/get-scanner-data-details",protectedRoute,validateRequest(scannerData), getParticipantDetailsScanner)
+            route.post("/get-scanner-data-details",validateRequest(scannerData), getParticipantDetailsScanner)
 
             //forget password
             route.post("/forget-password",validateRequest(forgetPasswordSchema),forgetPassword);
