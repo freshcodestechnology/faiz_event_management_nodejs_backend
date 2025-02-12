@@ -133,13 +133,9 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         `;
 
         const participant_qr_details = JSON.stringify({
-            name: participant_details?.first_name + " " + participant_details?.last_name,
-            email: participant_details?.email,
-            contact_no: participant_details?.contact,
-            event: event_details?.event_title,
-            event_address: event_details?.address,
             user_token:token,
             event_id:event_details?.id,
+            event_slug:event_details?.event_slug,
         });
         const base64Image = await QRCode.toDataURL(participant_qr_details);
    
@@ -393,13 +389,9 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
             `;
 
             const participant_qr_details = JSON.stringify({
-                name: participant_details?.first_name + " " + participant_details?.last_name,
-                email: participant_details?.email,
-                contact_no: participant_details?.contact,
-                event: event_details?.event_title,
-                event_address: event_details?.address,
                 user_token:token,
                 event_id:event_details?.id,
+                event_slug:event_details?.event_slug,
             });
             const base64Image = await QRCode.toDataURL(participant_qr_details);
     

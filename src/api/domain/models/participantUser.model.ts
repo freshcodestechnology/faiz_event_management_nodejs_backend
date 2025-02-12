@@ -153,13 +153,10 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                   `;
           
                     const participant_qr_details = JSON.stringify({
-                        name: participant_details?.first_name + " " + participant_details?.last_name,
-                        email: participant_details?.email,
-                        contact_no: participant_details?.contact,
-                        event: event_details?.event_title,
-                        event_address: event_details?.address,
+                       
                         user_token:token,
                         event_id:event_details?.id,
+                        event_slug:event_details?.event_slug,
                     });
                     const base64Image = await QRCode.toDataURL(participant_qr_details);
                     const qrFileName = saveQrImage(base64Image, event_participant_details.token);
