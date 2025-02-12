@@ -32,6 +32,9 @@ export const assignScannerMachineSchema = Joi.object({
     company_id: Joi.string().required().messages({
         "any.required": "company_id is required."
     }),
+    password: Joi.string().required().messages({
+        "any.required": "password is required."
+    }),
     expired_date: Joi.any().required().messages({
         "any.required": "Expired date is required."
     }),
