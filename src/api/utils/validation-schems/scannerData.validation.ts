@@ -7,4 +7,7 @@ export const scannerData = Joi.object({
     user_token: Joi.string().required().messages({
         "any.required": "user token is required."
     }),
+    scanner_type: Joi.string().required().messages({
+        "any.required": "scanner_type is required."
+    }),
 });

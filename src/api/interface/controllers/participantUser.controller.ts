@@ -581,9 +581,8 @@ export const getParticipantDetails = async (req: Request, res: Response) => {
 export const getParticipantDetailsScanner = async (req: Request, res: Response) => {
     try {
 
-        const { event_slug, user_token,status } = req.body;
-        console.log(event_slug)
-        console.log(req.body)
+        const { event_slug, user_token,scanner_type } = req.body;
+       
         const event_details = await eventSchema.findOne({ 
             event_slug: event_slug,    
         });
@@ -601,29 +600,6 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
             return ErrorResponse(res, "Participant User Not Found");
         }
 
-        // if (status == "0") {
-
-        //     if(event_participant_details.status == "checked_out"){
-        //         return ErrorResponse(res, "Can't check in because you are already checked out.");
-        //     }
-
-        //     if(event_participant_details.status == "checked_in"){
-        //         return ErrorResponse(res, "You are already checked in.");
-        //     }
-
-        //     event_participant_details.status = "checked_in";
-        //     event_participant_details.checkin_time = new Date();
-        // } 
-        // else if (status == "1") {
-        //     if(event_participant_details.status == "checked_out"){
-        //         return ErrorResponse(res, "You are already checked out.");
-        //     }
-        //     event_participant_details.status = "checked_out";
-        //     event_participant_details.checkout_time = new Date();
-        // } 
-        // else {
-        //     return ErrorResponse(res, "Invalid status. Use 'checkin' or 'checkout'.");
-        // }
         const baseUrl = env.BASE_URL;
         event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
 
@@ -632,10 +608,43 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
         if (!participant_details) {
             return ErrorResponse(res, "Participant User Not Found");
         }
+        var color_status = "";
+        var scanning_msg = "";
+        
+        if (!event_participant_details) {
+            return ErrorResponse(res, "Participant details not found");
+        }
+        
+        if (scanner_type == 0) { // Check-in Process
+            if (event_participant_details.status == "in") {
+                scanning_msg = "You are already in the event";
+                color_status = "yellow";
+            } else {
+                event_participant_details.checkin_time = new Date();
+                event_participant_details.status = "in";
+                await event_participant_details.save();
+                scanning_msg = "You are now checked into the event";
+                color_status = "green";
+            }
+        }
+        
+        if (scanner_type == 1) { // Check-out Process
+            if (event_participant_details.status != "in") {
+                scanning_msg = "You can't check out without checking in";
+                color_status = "red";
+            } else {
+                event_participant_details.checkout_time = new Date();
+                event_participant_details.status = "out";
+                await event_participant_details.save();
+                scanning_msg = "You are now checked out from the event";
+                color_status = "green";
+            }
+        }        
 
         const resutl = [];
         resutl.push(event_participant_details);
         resutl.push(participant_details);
+        resutl.push({"color_status":color_status,"scanning_msg":scanning_msg});
         return successResponse(res, 'Participant User Details', resutl);
 
     } catch (error) {
