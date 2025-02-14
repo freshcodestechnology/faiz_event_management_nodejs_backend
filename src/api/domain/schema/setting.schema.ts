@@ -5,6 +5,7 @@ export interface IButton {
     name: string;
     icon: string;
     status: boolean;
+    type: string;
 }
 
 export interface ISetting extends Document {
@@ -19,6 +20,7 @@ const SettingSchema: Schema = new Schema<ISetting>(
                 name: { type: String, required: true },
                 icon: { type: String, required: true },
                 status: { type: Boolean, default: true },
+                type: { type: String, default: true },
             },
         ],
     },

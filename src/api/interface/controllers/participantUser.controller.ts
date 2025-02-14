@@ -601,8 +601,7 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
         }
 
         const baseUrl = env.BASE_URL;
-        event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
-
+        
         const participant_details = await participantUsers.findOne({ _id: event_participant_details?.participant_user_id });
 
         if (!participant_details) {
@@ -640,7 +639,7 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
                 color_status = "green";
             }
         }        
-
+        event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
         const resutl = [];
         resutl.push(event_participant_details);
         resutl.push(participant_details);
