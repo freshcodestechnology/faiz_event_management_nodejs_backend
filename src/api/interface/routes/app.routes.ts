@@ -9,7 +9,7 @@ import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScanne
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
 import { getEventDetailsSlug,scannerPageLogin } from "../../interface/controllers/ScannerPage.controller";
-import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,getParticipantDetails,getParticipantDetailsScanner } from "../../interface/controllers/participantUser.controller";
+import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,generateScannerEventPdf,getParticipantDetails,getParticipantDetailsScanner } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema,scannerPageLoginUserSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
@@ -69,6 +69,7 @@ import { getEventDetailValidation } from "../../utils/validation-schems/scannerP
             route.get("/get-user-details/:email",getUserDetailsUsingEmail);
             route.post("/store-participant-details",validateRequest(EventParticipantUsers),storeEventParticipantUser);
             route.get("/generate-event-pdf/:encrypt_token",generateEventPdf);
+            route.post("/generate-event-pdf-scanner",generateScannerEventPdf);
 
             //location module urls
             route.get('/get-country',getCountry)

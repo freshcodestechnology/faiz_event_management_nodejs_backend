@@ -60,6 +60,238 @@ export const getUserDetailsUsingEmail = async (req: Request, res: Response) => {
     }
 };
 
+const formatDate = (dateString: string): { day: number; month: string; year: number } => {
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const date = new Date(dateString);
+    return {
+        day: date.getDate(),
+        month: months[date.getMonth()],
+        year: date.getFullYear(),
+    };
+};
+
+
+export const generateScannerEventPdf = async (req: Request, res: Response) => {
+    try {
+        const baseUrl = env.BASE_URL;
+        const key = env.ENCRYPT_KEY;
+        const iv = env.DECRYPT_KEY;
+        const { event_slug, user_token } = req.body;
+
+        const event_participant_details = await eventParticipant.findOne({ user_token });
+        if (!event_participant_details) {
+            return ErrorResponse(res, "Participant details not found");
+        }
+
+        const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
+        if (event_details?.event_logo) {
+            event_details.event_logo = baseUrl +'/'+ event_details.event_logo;
+        }
+    
+        if (event_details?.event_image) {
+            event_details.event_image = baseUrl +'/'+ event_details.event_image;
+        }
+        const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
+
+        if (!participant_details) {
+            return ErrorResponse(res, "Participant User not found");
+        }
+
+        const startDates: string[] = event_details?.start_date || []; 
+        const endDates: string[] = event_details?.end_date || []; 
+        const getEarliestDate = (dates: string[]): Date => {
+            return new Date(dates.reduce((min, date) => 
+                new Date(date) < new Date(min) ? date : min
+            ));
+        };
+        
+        // Function to find the latest (maximum) date
+        const getLatestDate = (dates: string[]): Date => {
+            return new Date(dates.reduce((max, date) => 
+                new Date(date) > new Date(max) ? date : max
+            ));
+        };
+        
+        // Get earliest start date and latest end date
+        const earliestStartDate = getEarliestDate(startDates);
+        const latestEndDate = getLatestDate(endDates);
+        
+        // Function to format date with time
+        const formatDateTime = (date: Date): string => {
+            const day = date.getDate();
+            const month = date.toLocaleString('default', { month: 'long' });
+            const year = date.getFullYear();
+            const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+            return `${day} ${month} ${year} - ${time}`;
+        };
+        
+        // Extracting values
+        const earliestStartDay = earliestStartDate.getDate();
+        const latestEndDay = latestEndDate.getDate();
+        const latestEndMonth = latestEndDate.toLocaleString('default', { month: 'long' });
+        const startTime = earliestStartDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        const endTime = latestEndDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        
+        // Final formatted output
+        const formattedDateRange = `${earliestStartDay} - ${latestEndDay} ${latestEndMonth} ${latestEndDate.getFullYear()} - ${startTime} to ${endTime}`;
+        
+
+        const participant_qr_details = JSON.stringify({
+            user_token:user_token,
+            event_id:event_details?.id,
+            event_slug:event_details?.event_slug,
+        });
+        const base64Image = await QRCode.toDataURL(participant_qr_details);
+
+        const htmlContent = `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+                <!-- <title>A4 PDF Layout - 4 Sections</title> -->
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        /* height: 100vh; */
+                        background-color: #f0f0f0;
+                        font-family: 'Arial', sans-serif;
+                    }
+
+                    .a4-container {
+                        width: 210mm;
+                        height: 297mm;
+                        background: white;
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-template-rows: 1fr 1fr;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .section {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        font-size: 16px;
+                        font-weight: bold;
+                        text-align: center;
+                        padding: 20px;
+
+                    }
+                    .section img{
+                        margin-bottom: 10px;
+                    }
+                    .event-container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 2px;
+                        width: 100%;
+                        background: #F8F8F8;
+                        padding-top: 6px;
+                        padding-bottom: 6px;
+                    }
+
+                    .event-item, .event-location {
+                        display: flex;
+                        align-items: center;
+                        gap: 2px;
+                        font-size: 14px;
+                    }
+                    .event-location {
+                        font-size: 12px;
+                    }
+
+                    .qr-code {
+                        width: 100px;
+                        height: auto;
+                        margin-top: 10px;
+                    }
+                    .section p {
+                        margin: 4px;
+                    }
+                    .section .heading{
+                    font-size: 16px!important   ;
+                    }
+                    .section .subheading{
+                    font-size: 10px!important;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="a4-container">
+                    <div class="section" style="border: 1px solid rgb(79, 74, 74);">
+                        <img src="`+event_details?.event_logo+`" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+                        <div class="event-container">
+                            <div class="event-item"> `+formattedDateRange+`</div>
+                            <div class="event-location">`+event_details?.address+`</div>
+                        </div>
+                        <p class="heading">`+participant_details?.first_name +participant_details?.last_name+`</p>
+                        <p class="subheading">(`+participant_details?.designation+`)</p>
+                        <img src="`+base64Image+`" alt="QR Code" class="qr-code">
+                        <img src="`+event_details?.event_logo+`" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+                    </div>
+                    <div class="section"></div>
+                    <div class="section"></div>
+                    <div class="section"></div>
+                </div>
+            </body>
+            </html>
+            `;
+            
+
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'], 
+        });
+
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1920, height: 1080 });
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+        await page.emulateMediaType('screen');
+        let file_name = participant_details.first_name + "_" + participant_details.last_name + "_event_details.pdf";
+        const tempFilePath = path.join(__dirname, file_name);
+        const pdfBuffer = await page.pdf({
+            path: tempFilePath,
+            printBackground: true,  
+            format: 'A4',
+        });
+
+        await browser.close();
+        const filePath = path.join(__dirname, file_name); 
+
+        if (fs.existsSync(filePath)) {
+            res.set({
+                'Content-Type': 'application/pdf',  
+                'Content-Disposition': 'attachment; filename="'+file_name+'"', 
+            });
+            const fileStream = fs.createReadStream(filePath);
+            fileStream.pipe(res);
+            res.on('finish', () => {
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting the file:', err);
+                    } else {
+                        console.log('File deleted successfully after download');
+                    }
+                });
+            });
+        } else {
+            res.status(404).send('File not found');
+        }
+
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        return res.status(500).json({
+            status: "error",
+            message: "An error occurred while generating the PDF.",
+        });
+    }
+};
+
 export const generateEventPdf = async (req: Request, res: Response) => {
     try {
         const baseUrl = env.BASE_URL;
@@ -138,137 +370,230 @@ export const generateEventPdf = async (req: Request, res: Response) => {
             event_slug:event_details?.event_slug,
         });
         const base64Image = await QRCode.toDataURL(participant_qr_details);
-   
-        const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>`+event_details?.event_title+` QR Code Scanner</title>
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }
 
-                .container {
-                    max-width: 800px;
-                    margin: 50px auto;
-                    background: white;
-                    border: 1px solid #ddd;
-                    border-radius: 20px;
-                    padding: 20px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                }
+        const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <!-- <title>A4 PDF Layout - 4 Sections</title> -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* height: 100vh; */
+            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+        }
 
-                .text-center {
-                    text-align: center;
-                }
+        .a4-container {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
 
-                .heading {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: #333;
-                    margin-bottom: 20px;
-                }
+        .section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
 
-                .subheading {
-                    font-size: 16px;
-                    font-weight: 500;
-                    color: #555;
-                }
+        }
+        .section img{
+            margin-bottom: 10px;
+        }
+        .event-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            width: 100%;
+            background: #F8F8F8;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
 
-                .qr-code {
-                    margin: 20px 0;
-                    width: 200px;
-                    height: auto;
-                }
+        .event-item, .event-location {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 14px;
+        }
+        .event-location {
+            font-size: 12px;
+        }
 
-                .details {
-                    font-size: 14px;
-                    color: #666;
-                    margin-top: 20px;
-                }
-
-                .details img {
-                    vertical-align: middle;
-                    margin-right: 8px;
-                }
-
-                .button-group {
-                    margin-top: 30px;
-                    display: flex;
-                    justify-content: center;
-                    gap: 10px;
-                }
-
-                .button {
-                    padding: 10px 20px;
-                    font-size: 14px;
-                    border-radius: 5px;
-                    border: none;
-                    cursor: pointer;
-                    text-decoration: none;
-                    color: white;
-                    display: inline-block;
-                }
-
-                .button-primary {
-                    background-color: #007bff;
-                }
-
-                .button-secondary {
-                    background-color: #6c757d;
-                }
-                .mt-2{
-                    margin-bottom: 10px;;
-                }
-                .list-unstyled {
-                    list-style: none; 
-                    padding-left: 0; 
-                    margin: 0;        
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="text-center">
-                    <img src="`+event_details?.event_logo+`" alt="Event Logo" style="max-width: 100px; height: 100px; border-radius: 10px;">
-                </div>
-
-                <div class="text-center">
-                    <p class="heading">`+event_details?.event_title+`</p>
-                    <p class="subheading">QR Code Scanner</p>
-                </div>
-
-                <div class="text-center">
-                    <img src="`+base64Image+`" alt="QR Code" class="qr-code">
-                </div>
-
-                <div class="details text-center">
-                    <h3>
-                        <b> Event Date: </b>
-                    </h3>
-                         `+detailsHTML+`
-                    <p>
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin">
-                            <path d="M21 10c0 7.333-9 12-9 12s-9-4.667-9-12a9 9 0 1 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        Address: `+event_details?.address+`
-                    </p>
-                </div>
-
-                <div class="text-center">
-                    <p class="subheading">Participant: `+participant_details?.first_name+` `+participant_details?.last_name+`</p>
-                </div>
+        .qr-code {
+            width: 100px;
+            height: auto;
+            margin-top: 10px;
+        }
+        .section p {
+            margin: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-container">
+        <div class="section" style="border: 1px solid rgb(79, 74, 74);">
+            <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+            <div class="event-container">
+                <div class="event-item"> 4 - 8 December 2024 - 10:00 AM to 6:00 PM</div>
+                <div class="event-location">Hall 4, Bombay Exhibition Centre, Mumbai</div>
             </div>
-        </body>
-        </html>
-        `;
+            <p class="heading">FaizalMohd Sheikh</p>
+            <p class="subheading">(IT Head)</p>
+            <img src="qrcode.png" alt="QR Code" class="qr-code">
+            <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+        </div>
+        <div class="section"></div>
+        <div class="section"></div>
+        <div class="section"></div>
+    </div>
+</body>
+</html>
+`;
+   
+        // const htmlContent = `
+        // <!DOCTYPE html>
+        // <html>
+        // <head>
+        //     <meta charset="UTF-8">
+        //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //     <title>`+event_details?.event_title+` QR Code Scanner</title>
+        //     <style>
+        //         body {
+        //             font-family: 'Arial', sans-serif;
+        //             margin: 0;
+        //             padding: 0;
+        //             background-color: #f9f9f9;
+        //         }
+
+        //         .container {
+        //             max-width: 800px;
+        //             margin: 50px auto;
+        //             background: white;
+        //             border: 1px solid #ddd;
+        //             border-radius: 20px;
+        //             padding: 20px;
+        //             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        //         }
+
+        //         .text-center {
+        //             text-align: center;
+        //         }
+
+        //         .heading {
+        //             font-size: 24px;
+        //             font-weight: bold;
+        //             color: #333;
+        //             margin-bottom: 20px;
+        //         }
+
+        //         .subheading {
+        //             font-size: 16px;
+        //             font-weight: 500;
+        //             color: #555;
+        //         }
+
+        //         .qr-code {
+        //             margin: 20px 0;
+        //             width: 200px;
+        //             height: auto;
+        //         }
+
+        //         .details {
+        //             font-size: 14px;
+        //             color: #666;
+        //             margin-top: 20px;
+        //         }
+
+        //         .details img {
+        //             vertical-align: middle;
+        //             margin-right: 8px;
+        //         }
+
+        //         .button-group {
+        //             margin-top: 30px;
+        //             display: flex;
+        //             justify-content: center;
+        //             gap: 10px;
+        //         }
+
+        //         .button {
+        //             padding: 10px 20px;
+        //             font-size: 14px;
+        //             border-radius: 5px;
+        //             border: none;
+        //             cursor: pointer;
+        //             text-decoration: none;
+        //             color: white;
+        //             display: inline-block;
+        //         }
+
+        //         .button-primary {
+        //             background-color: #007bff;
+        //         }
+
+        //         .button-secondary {
+        //             background-color: #6c757d;
+        //         }
+        //         .mt-2{
+        //             margin-bottom: 10px;;
+        //         }
+        //         .list-unstyled {
+        //             list-style: none; 
+        //             padding-left: 0; 
+        //             margin: 0;        
+        //         }
+        //     </style>
+        // </head>
+        // <body>
+        //     <div class="container">
+        //         <div class="text-center">
+        //             <img src="`+event_details?.event_logo+`" alt="Event Logo" style="max-width: 100px; height: 100px; border-radius: 10px;">
+        //         </div>
+
+        //         <div class="text-center">
+        //             <p class="heading">`+event_details?.event_title+`</p>
+        //             <p class="subheading">QR Code Scanner</p>
+        //         </div>
+
+        //         <div class="text-center">
+        //             <img src="`+base64Image+`" alt="QR Code" class="qr-code">
+        //         </div>
+
+        //         <div class="details text-center">
+        //             <h3>
+        //                 <b> Event Date: </b>
+        //             </h3>
+        //                  `+detailsHTML+`
+        //             <p>
+        //                 <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin">
+        //                     <path d="M21 10c0 7.333-9 12-9 12s-9-4.667-9-12a9 9 0 1 1 18 0z"></path>
+        //                     <circle cx="12" cy="10" r="3"></circle>
+        //                 </svg>
+        //                 Address: `+event_details?.address+`
+        //             </p>
+        //         </div>
+
+        //         <div class="text-center">
+        //             <p class="subheading">Participant: `+participant_details?.first_name+` `+participant_details?.last_name+`</p>
+        //         </div>
+        //     </div>
+        // </body>
+        // </html>
+        // `;
 
         const browser = await puppeteer.launch({
             headless: true,
