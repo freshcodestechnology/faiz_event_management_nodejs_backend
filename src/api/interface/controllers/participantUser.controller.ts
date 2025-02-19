@@ -641,6 +641,9 @@ export const getParticipantDetailsScanner = async (req: Request, res: Response) 
         }        
         event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
         const resutl = [];
+        event_details.event_logo= `${env.BASE_URL}/${event_details.event_logo}`
+        event_details.event_image= `${env.BASE_URL}/${event_details.event_image}`
+        resutl.push(event_details);
         resutl.push(event_participant_details);
         resutl.push(participant_details);
         resutl.push({"color_status":color_status,"scanning_msg":scanning_msg});
