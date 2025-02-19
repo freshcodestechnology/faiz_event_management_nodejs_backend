@@ -199,14 +199,14 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                         display: flex;
                         align-items: center;
                         gap: 2px;
-                        font-size: 14px;
+                        font-size: 11px;
                     }
                     .event-location {
-                        font-size: 12px;
+                        font-size: 10px;
                     }
 
                     .qr-code {
-                        width: 100px;
+                        width: 200px;
                         height: auto;
                         margin-top: 10px;
                     }
