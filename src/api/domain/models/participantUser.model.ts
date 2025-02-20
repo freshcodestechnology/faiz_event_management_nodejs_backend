@@ -111,6 +111,9 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                   if (event_details?.event_image) {
                       event_details.event_image = baseUrl +'/'+ event_details.event_image;
                   }
+                  if (event_details?.show_location_image) {
+                        event_details.show_location_image = baseUrl +'/'+ event_details.show_location_image;
+                    }
                   const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
           
                   if (!participant_details) {

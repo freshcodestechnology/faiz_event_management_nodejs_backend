@@ -35,6 +35,8 @@ interface eventData{
     reason_for_visiting:string[],
     company_activity:string[],
     event_id?: any,
+    show_location_image?:string,
+    getting_show_location?:string,
     company_id?:string,
 }
 
@@ -78,6 +80,8 @@ export const storeEvent = async (loginUserData:loginUserData,eventData: eventDat
             event_type: eventData.event_type,
             event_logo: eventData.event_logo,
             event_image: eventData.event_image,
+            show_location_image: eventData.show_location_image,
+            getting_show_location: eventData.getting_show_location,
             organizer_name: eventData.organizer_name,
             organizer_email: eventData.organizer_email,
             organizer_phone: eventData.organizer_phone,
@@ -246,6 +250,7 @@ export const adminEventList = async (loginUserData:loginUserData,userData: event
                 ...event.toObject(), 
                 event_logo: `${env.BASE_URL}/${event.event_logo}`,
                 event_image: `${env.BASE_URL}/${event.event_image}`,
+                show_location_image : `${env.BASE_URL}/${event.show_location_image}`,
             };
         });
         const totalUsers = await eventSchema.countDocuments(searchFilter); 
@@ -274,7 +279,7 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
         const user_token = decrypted.token;
         const EventParticipantData = await EventParticipantSchema.findOne({ token: user_token });
         if (!EventParticipantData) {
-            const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image');
+            const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image +show_location_image');
             if (event?.event_logo) {
                 event.event_logo = baseUrl +'/'+ event.event_logo;
 
@@ -282,6 +287,10 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
         
             if (event?.event_image) {
                 event.event_image = baseUrl +'/'+ event.event_image;
+            }
+
+            if (event?.show_location_image) {
+                event.show_location_image = baseUrl +'/'+ event.show_location_image;
             }
 
             const company_visit = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
@@ -293,7 +302,7 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
         } else {
 
             let show_form = false;
-            const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image');
+            const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image +show_location_image');
             if (event?.event_logo) {
                 event.event_logo = baseUrl +'/'+ event.event_logo;
             }
@@ -301,6 +310,10 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
             if (event?.event_image) {
                 event.event_image = baseUrl +'/'+event.event_image;
             }
+            if (event?.show_location_image) {
+                event.show_location_image = baseUrl +'/'+event.show_location_image;
+            }
+            
             const participantUser = await ParticipantSchema.findOne({ _id: EventParticipantData?.participant_user_id });
             
             const participant_qr_details = JSON.stringify({
@@ -326,7 +339,7 @@ export const getEventParticipantUserListModal = async(slug: string, callback: (e
     try {
         const event = await eventSchema
             .findOne({ event_slug: slug })
-            .select("+event_logo +event_image");
+            .select("+event_logo +event_image +show_location_image");
     
         if (!event) {
             return callback({ message: "Event not found" }, null); 

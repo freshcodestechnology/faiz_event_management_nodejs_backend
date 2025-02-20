@@ -19,6 +19,8 @@ export interface IEvent extends Document {
     organizer_name: string;
     organizer_email: string;
     organizer_phone: string;
+    getting_show_location: string;
+    show_location_image: string;
     sort_des_about_event: string;
     createdAt: Date;
     updatedAt: Date;
@@ -39,6 +41,8 @@ const eventSchema: Schema = new Schema<IEvent>({
     company_activity: { type: [String], required: true }, 
     event_logo: { type: String },
     event_image: { type: String },
+    show_location_image: { type: String },
+    getting_show_location: { type: String },
     organizer_name: { type: String, required: true },
     organizer_email: { type: String, required: true },
     organizer_phone: { type: String, required: true },

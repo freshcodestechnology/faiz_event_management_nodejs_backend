@@ -65,6 +65,11 @@ export const adminEventSchema = Joi.object({
         "any.required": "Address is required.",
         "string.base": "Address must be a string."
     }),
+    getting_show_location: Joi.string().required().messages({
+        "any.required": "Address is required.",
+        "string.base": "getting_show_location must be a string."
+    }),
+    
     event_type: Joi.string().required().messages({
         "any.required": "Event Type is required.",
         "string.base": "Event Type must be a string."
@@ -86,6 +91,10 @@ export const adminEventSchema = Joi.object({
         "string.base": "Event Logo must be a string."
     }),
     event_image: Joi.string().uri().messages({
+        "string.uri": "Event Image must be a valid URI.",
+        "string.base": "Event Image must be a string."
+    }),
+    show_location_image: Joi.string().uri().messages({
         "string.uri": "Event Image must be a valid URI.",
         "string.base": "Event Image must be a string."
     }),
