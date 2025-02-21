@@ -76,20 +76,27 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         const baseUrl = env.BASE_URL;
         const key = env.ENCRYPT_KEY;
         const iv = env.DECRYPT_KEY;
-        const { event_slug, user_token } = req.body;
+        const { user_token } = req.body;
+
+        const event_slug = "test-event-slug";
 
         const event_participant_details = await eventParticipant.findOne({ user_token });
         if (!event_participant_details) {
             return ErrorResponse(res, "Participant details not found");
         }
 
-        const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
+        // const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
+        const event_details = await eventSchema.findOne({ event_slug: event_slug });
         if (event_details?.event_logo) {
             event_details.event_logo = baseUrl +'/'+ event_details.event_logo;
         }
     
         if (event_details?.event_image) {
             event_details.event_image = baseUrl +'/'+ event_details.event_image;
+        }
+
+        if (event_details?.show_location_image) {
+            event_details.show_location_image = baseUrl +'/'+ event_details.show_location_image;
         }
         const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
 
@@ -135,225 +142,216 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         // Final formatted output
         const formattedDateRange = `${earliestStartDay} - ${latestEndDay} ${latestEndMonth} ${latestEndDate.getFullYear()} - ${startTime} to ${endTime}`;
         
-
+        console.log(formattedDateRange)
         const participant_qr_details = JSON.stringify({
             user_token:user_token,
             event_id:event_details?.id,
             event_slug:event_details?.event_slug,
         });
         const base64Image = await QRCode.toDataURL(participant_qr_details);
+        console.log(event_details?.start_date);
+        console.log(event_details?.end_date);
 
+        const filterDates: string[] = [];
+
+        startDates.forEach((startDate, index) => {
+            const endDate = endDates[index] || null;
+
+            if (startDate) {
+                const start = new Date(startDate);
+                const end = endDate ? new Date(endDate) : null;
+
+                const formattedDate = `${start.toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                })} - ${start.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                })} to ${end ? end.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                }) : ''}`;
+
+                filterDates.push(formattedDate);
+            }
+        });
+
+        const detailsHTML = `
+            ${filterDates.map(date => `<div class="event-item">${date}</div>`).join('')}
+        `;
+
+        console.log(detailsHTML)
+      
         const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: 'Arial', sans-serif;
-        }
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                background-color: #f0f0f0;
+                                font-family: 'Arial', sans-serif;
+                            }
 
-        /* A4 page setup */
-        .a4-container {
-            width: 210mm;
-            height: 297mm;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            grid-gap: 2mm;
-            box-sizing: border-box;
-            background: white;
-            padding: 5mm;
-            border: 1px solid black;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
+                            /* A4 page setup */
+                            .a4-container {
+                                width: 210mm;
+                                height: 297mm;
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                grid-template-rows: 1fr 1fr;
+                                grid-gap: 2mm;
+                                box-sizing: border-box;
+                                background: white;
+                                padding: 5mm;
+                                border: 1px solid black;
+                                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                            }
 
-        .section {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 14px;
-            text-align: center;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-           
-        }
+                            .section {
+                                position: relative;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                font-size: 14px;
+                                text-align: center;
+                                padding: 10px;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                                box-sizing: border-box;
+                            
+                            }
 
-        .section img {
-            margin-bottom: 10px;
-            width: 70%;
-            height: auto;
-        }
+                            .section img {
+                                margin-bottom: 10px;
+                                width: 70%;
+                                height: auto;
+                            }
 
-        .section .heading {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+                            .section .heading {
+                                font-size: 18px;
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                            }
 
-        .section .subheading {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 10px;
-        }
+                            .section .subheading {
+                                font-size: 12px;
+                                color: #777;
+                                margin-bottom: 10px;
+                            }
 
-        .section .event-item {
-            font-size: 12px;
-            margin: 4px;
-        }
+                            .section .event-item {
+                                font-size: 12px;
+                                margin: 4px;
+                            }
 
-        .section .qr-code {
-            width: 200px;
-            height: auto;
-            margin-top: 10px;
-        }
+                            .section .qr-code {
+                                width: 200px;
+                                height: auto;
+                                margin-top: 10px;
+                            }
 
-        /* Add dashed borders for better visibility */
-        .border-dashed {
-            border: 2px dashed rgb(3, 3, 3);
-        }
+                            /* Add dashed borders for better visibility */
+                            .border-dashed {
+                                border: 2px dashed rgb(3, 3, 3);
+                            }
 
-        .text-center {
-            text-align: center;
-        }
-        .content_css h4,.content_css p{    
-            float: left;
-            margin: 0;
-            padding: 0;
-        }
-        .content_css h4{
-            color:  rgb(82 104 49);
-        }
-        .content_css div{
-            margin-top: 2px;
-            text-align: justify;
-            margin-top: 15px;
-        }
-        .content_css p{   
-            margin-top: 15px;
-           font-size: 10px;
-        }
-        .heading_second{
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .button {
-            position: absolute!important;
-            left: 20px;
-            bottom: 20px;
-            padding: 10px 20px;
-            background-color: #b7e24a;;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transform: rotate(-90deg);
-            margin-left: -55PX;
-    margin-bottom: 21px;
-    border-radius: 0;
-    padding: 11px;
-    font-weight: 700;
-    font-size: 25px;
-        }
+                            .text-center {
+                                text-align: center;
+                            }
+                            .content_css h4,.content_css p{    
+                                float: left;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .content_css h4{
+                                color:  rgb(82 104 49);
+                            }
+                            .content_css div{
+                                margin-top: 2px;
+                                text-align: justify;
+                                margin-top: 15px;
+                            }
+                            .content_css p{   
+                                margin-top: 15px;
+                            font-size: 10px;
+                            }
+                            .heading_second{
+                                font-size: 14px;
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                            }
+                            .button {
+                                position: absolute!important;
+                                left: 20px;
+                                bottom: 20px;
+                                padding: 10px 20px;
+                                background-color: #b7e24a;;
+                                color: white;
+                                border: none;
+                                border-radius: 5px;
+                                font-size: 16px;
+                                cursor: pointer;
+                                transform: rotate(-90deg);
+                                margin-left: -55PX;
+                        margin-bottom: 21px;
+                        border-radius: 0;
+                        padding: 11px;
+                        font-weight: 700;
+                        font-size: 25px;
+                            }
 
-        .button:hover {
-            background-color: #357ABD;
-        }
-    </style>
-</head>
-<body>
-    <div class="a4-container">
-       
-        <div class="section border-dashed">
-            <img src="http://148.72.144.28:3000/uploads/1739964296160-image_2025_02_19T09_40_28_992Z.png" alt="Event Logo" style="height: 100px; border-radius: 10px;">
-           
-            <div style="background: #c5cdbe80;
-            width: 100%; font-weight: bold;">
-                <div class="event-item">4-6 DECEMBER 2024 | HALL 4, NESCO,</div>
-                <div class="event-item">BOMBAY EXHIBITION CENTRE (BEC), MUMBAL, INDIA</div>
-            </div>
-            <p class="heading">Yatin Darekar</p>
-            <p class="heading_second">(Manager)</p>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QR Code" class="qr-code">
-            <p class="heading_second">Badge Sponsor</p>
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkovjO7QDFTaE5dS4pQkW4jta1FlvfWXwUdg&s" alt="Event Logo" style="height: 80px; border-radius: 10px;">
-            <div class="border-dashed">
-                <button class="button">VISITOR</button>
-            </div>
-        </div>
-        <div class="section border-dashed content_css" style="float: left;">
-            <div>
-                <h4>Getting to The Show</h4>
-                    <p>Bombay Exhibition Centre is India's largest exhibition venue
-                        in the private sector. It is conveniently located in Goregaon,
-                        Mumbai with close access to the local train, Metro, and the
-                        Western Express Highway.</p>
-            </div>
-            <div>
-                <h4>By Road</h4>
-                    <p>Bombay Exhibition Center is located along the Westerm
-                        Express Highway (service road) in Goregaon East, Mumbai
-                        and is easily accessible by auto rickshaws and taxis.</p>
-            </div>
-            <div>
-                <h4>By Train</h4>
-                    <p>The nearest local railway stations to reach Bombay
-                        Exhibition Center are Ram Mandir Road and Goregoon, which
-                        are situated on the Western Suburban Line. Both the stations
-                        are well connected to the other railway lines.</p>
-            </div>
-            <div>
-                <h4>By Metro</h4>
-                    <p>Goregaon East Station on line 7A (Red Line) is the nearest
-                        metro station to reach Bombay Exhilbition Center. The venue
-                        is a couple of minutes walk from the metro station</p>
-            </div>
-            <div>
-                <h4>By Air</h4>
-                    <p>
-                        Domestic Airport: It takes 30 minutes to travel from Mumbai
-                        Domestic Airport-Terminal 1 to BEC. The appraximate drivingdistance between Nesco and Mumbai Domestic Airport is 7
-                        kms. or 4.3 miles or 3.8 nautical miles.
-                    </p>
-                    <p>
-                        International Airport: it tokes 20 minutes to travel from
-                        Chhatrapati Shivaji Maharaj International Airport-Terminal 2
-                        to BEC.
-                    </p>
-                    <p>
-                        The best means of transportation would be a pre-paid toxi
-                        service from the airport avallable at the airport.
-                    </p>   
-            </div>
-        </div>
-        <div class="section border-dashed">
-            <div class="text-center">
-                <h2 style="color:#b9b907;">Attend the informative <br> sessions in the <br> conference arena</h2>
-                <p>Scan the QR code below to view the agenda:</p>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QR Code" style="height: 100px; height: 200px;">
-                <hr>
-                <h4>Date and Time</h4>
-                <div class="event-item">Day 1: 4 DECEMBER 2024, 10:00 AM - 5:00 PM</div>
-                <div class="event-item">Day 2: 5 DECEMBER 2024, 9:00 AM - 5:00 PM</div>
-                <div class="event-item">Day 3: 6 DECEMBER 2024, 9:00 AM - 5:00 PM</div>
-            </div>
-        </div>
-        <div class="section border-dashed">
-            <img src="https://api.makemyhouse.com/public/Media/rimage/500/completed-project/1723028627_417.jpg?watermark=false" alt="Completed Project" style="width: 100; height: auto;">
-        </div>
-    </div>
-</body>
-</html>`;
+                            .button:hover {
+                                background-color: #357ABD;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="a4-container">
+                        
+                            <div class="section border-dashed">
+                                <img src="`+event_details?.event_logo+`" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+                            
+                                <div style="background: #c5cdbe80;
+                                width: 100%; font-weight: bold;">
+                                    <div class="event-item">`+formattedDateRange+`</div>
+                                    <div class="event-item">`+event_details?.address+`</div>
+                                </div>
+                                <p class="heading">`+participant_details?.first_name+` `+participant_details?.last_name+`</p>
+                                <p class="heading_second">(`+participant_details?.designation+`)</p>
+                                <img src="`+base64Image+`" alt="QR Code" class="qr-code">
+                                <p class="heading_second">Badge Sponsor</p>
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkovjO7QDFTaE5dS4pQkW4jta1FlvfWXwUdg&s" alt="Event Logo" style="height: 80px; border-radius: 10px;">
+                                <div class="border-dashed">
+                                    <button class="button">VISITOR</button>
+                                </div>
+                            </div>
+                            <div class="section border-dashed content_css" style="float: left;">
+                                `+event_details?.getting_show_location+`
+                            </div>
+                            <div class="section border-dashed">
+                                <div class="text-center">
+                                    <h2 style="color:#b9b907;">Attend the informative <br> sessions in the <br> conference arena</h2>
+                                    <p>Scan the QR code below to view the agenda:</p>
+                                    <img src="`+base64Image+`" alt="QR Code" style="height: 100px; height: 200px;">
+                                    <hr>
+                                    <h4>Date and Time</h4>
+                                    `+detailsHTML+`
+                                </div>
+                            </div>
+                            <div class="section border-dashed">
+                                <img src="`+event_details?.show_location_image+`" alt="Completed Project" style="width: 100; height: auto;">
+                            </div>
+                        </div>
+                    </body>
+                    </html>`;
             
 
         const browser = await puppeteer.launch({
@@ -485,97 +483,97 @@ export const generateEventPdf = async (req: Request, res: Response) => {
         const base64Image = await QRCode.toDataURL(participant_qr_details);
 
         const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <!-- <title>A4 PDF Layout - 4 Sections</title> -->
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* height: 100vh; */
-            background-color: #f0f0f0;
-            font-family: 'Arial', sans-serif;
-        }
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+                            <!-- <title>A4 PDF Layout - 4 Sections</title> -->
+                            <style>
+                                body {
+                                    margin: 0;
+                                    padding: 0;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    /* height: 100vh; */
+                                    background-color: #f0f0f0;
+                                    font-family: 'Arial', sans-serif;
+                                }
 
-        .a4-container {
-            width: 210mm;
-            height: 297mm;
-            background: white;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
+                                .a4-container {
+                                    width: 210mm;
+                                    height: 297mm;
+                                    background: white;
+                                    display: grid;
+                                    grid-template-columns: 1fr 1fr;
+                                    grid-template-rows: 1fr 1fr;
+                                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                                }
 
-        .section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            padding: 20px;
+                                .section {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    font-size: 16px;
+                                    font-weight: bold;
+                                    text-align: center;
+                                    padding: 20px;
 
-        }
-        .section img{
-            margin-bottom: 10px;
-        }
-        .event-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            width: 100%;
-            background: #F8F8F8;
-            padding-top: 6px;
-            padding-bottom: 6px;
-        }
+                                }
+                                .section img{
+                                    margin-bottom: 10px;
+                                }
+                                .event-container {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    gap: 2px;
+                                    width: 100%;
+                                    background: #F8F8F8;
+                                    padding-top: 6px;
+                                    padding-bottom: 6px;
+                                }
 
-        .event-item, .event-location {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            font-size: 14px;
-        }
-        .event-location {
-            font-size: 12px;
-        }
+                                .event-item, .event-location {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 2px;
+                                    font-size: 14px;
+                                }
+                                .event-location {
+                                    font-size: 12px;
+                                }
 
-        .qr-code {
-            width: 100px;
-            height: auto;
-            margin-top: 10px;
-        }
-        .section p {
-            margin: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="a4-container">
-        <div class="section" style="border: 1px solid rgb(79, 74, 74);">
-            <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
-            <div class="event-container">
-                <div class="event-item"> 4 - 8 December 2024 - 10:00 AM to 6:00 PM</div>
-                <div class="event-location">Hall 4, Bombay Exhibition Centre, Mumbai</div>
-            </div>
-            <p class="heading">FaizalMohd Sheikh</p>
-            <p class="subheading">(IT Head)</p>
-            <img src="qrcode.png" alt="QR Code" class="qr-code">
-            <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
-        </div>
-        <div class="section"></div>
-        <div class="section"></div>
-        <div class="section"></div>
-    </div>
-</body>
-</html>
-`;
+                                .qr-code {
+                                    width: 100px;
+                                    height: auto;
+                                    margin-top: 10px;
+                                }
+                                .section p {
+                                    margin: 4px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="a4-container">
+                                <div class="section" style="border: 1px solid rgb(79, 74, 74);">
+                                    <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+                                    <div class="event-container">
+                                        <div class="event-item"> 4 - 8 December 2024 - 10:00 AM to 6:00 PM</div>
+                                        <div class="event-location">Hall 4, Bombay Exhibition Centre, Mumbai</div>
+                                    </div>
+                                    <p class="heading">FaizalMohd Sheikh</p>
+                                    <p class="subheading">(IT Head)</p>
+                                    <img src="qrcode.png" alt="QR Code" class="qr-code">
+                                    <img src="levenex_logo.jpeg" alt="Event Logo" style="height: 100px; border-radius: 10px;">
+                                </div>
+                                <div class="section"></div>
+                                <div class="section"></div>
+                                <div class="section"></div>
+                            </div>
+                        </body>
+                        </html>
+                        `;
    
         // const htmlContent = `
         // <!DOCTYPE html>

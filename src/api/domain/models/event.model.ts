@@ -143,6 +143,7 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
                 organizer_name: eventData.organizer_name,
                 organizer_email: eventData.organizer_email,
                 organizer_phone: eventData.organizer_phone,
+                getting_show_location: eventData.getting_show_location,
                 sort_des_about_event: eventData.sort_des_about_event,
             },
             { new: true } 
