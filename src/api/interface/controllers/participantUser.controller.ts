@@ -194,8 +194,6 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                                 margin: 0;
                                 padding: 0;
                                 display: flex;
-                                justify-content: center;
-                                align-items: center;
                                 background-color: #f0f0f0;
                                 font-family: 'Arial', sans-serif;
                             }
@@ -226,7 +224,17 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                                 border: 1px solid #ccc;
                                 border-radius: 8px;
                                 box-sizing: border-box;
-                            
+                            }
+
+                            .section_2 {
+                                position: relative;
+                                display: flex;
+                                flex-direction: column;
+                                font-size: 14px;
+                                padding: 10px;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                                box-sizing: border-box;
                             }
 
                             .section img {
@@ -301,11 +309,11 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                                 cursor: pointer;
                                 transform: rotate(-90deg);
                                 margin-left: -55PX;
-                        margin-bottom: 21px;
-                        border-radius: 0;
-                        padding: 11px;
-                        font-weight: 700;
-                        font-size: 25px;
+                                margin-bottom: 21px;
+                                border-radius: 0;
+                                padding: 11px;
+                                font-weight: 700;
+                                font-size: 25px;
                             }
 
                             .button:hover {
@@ -329,11 +337,11 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                                 <img src="`+base64Image+`" alt="QR Code" class="qr-code">
                                 <p class="heading_second">Badge Sponsor</p>
                                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkovjO7QDFTaE5dS4pQkW4jta1FlvfWXwUdg&s" alt="Event Logo" style="height: 80px; border-radius: 10px;">
-                                <div class="border-dashed">
+                                <div class="border-dashed" style="border-color:white;">
                                     <button class="button">VISITOR</button>
                                 </div>
                             </div>
-                            <div class="section border-dashed content_css" style="float: left;">
+                            <div class="section_2 border-dashed content_css" style="float: left;">
                                 `+event_details?.getting_show_location+`
                             </div>
                             <div class="section border-dashed">
@@ -352,6 +360,8 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                         </div>
                     </body>
                     </html>`;
+
+                    console.log(htmlContent);
             
 
         const browser = await puppeteer.launch({
