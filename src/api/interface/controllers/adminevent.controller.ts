@@ -44,6 +44,8 @@ const iv = env.DECRYPT_KEY;
 
         if (user.show_location_image) {
             user.show_location_image = baseUrl +'/'+ user.show_location_image;
+        }else{
+            user.show_location_image = "";
         }
 
         
