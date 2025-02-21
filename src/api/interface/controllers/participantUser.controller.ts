@@ -76,17 +76,17 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         const baseUrl = env.BASE_URL;
         const key = env.ENCRYPT_KEY;
         const iv = env.DECRYPT_KEY;
-        const { user_token } = req.body;
+        const { event_slug,user_token } = req.body;
 
-        const event_slug = "test-event-slug";
+        // const event_slug = "test-event-slug";
 
         const event_participant_details = await eventParticipant.findOne({ user_token });
         if (!event_participant_details) {
             return ErrorResponse(res, "Participant details not found");
         }
 
-        // const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
-        const event_details = await eventSchema.findOne({ event_slug: event_slug });
+        const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
+        // const event_details = await eventSchema.findOne({ event_slug: event_slug });
         if (event_details?.event_logo) {
             event_details.event_logo = baseUrl +'/'+ event_details.event_logo;
         }
@@ -149,8 +149,6 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
             event_slug:event_details?.event_slug,
         });
         const base64Image = await QRCode.toDataURL(participant_qr_details);
-        console.log(event_details?.start_date);
-        console.log(event_details?.end_date);
 
         const filterDates: string[] = [];
 
@@ -182,8 +180,6 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         const detailsHTML = `
             ${filterDates.map(date => `<div class="event-item">${date}</div>`).join('')}
         `;
-
-        console.log(detailsHTML)
       
         const htmlContent = `<!DOCTYPE html>
                     <html lang="en">
