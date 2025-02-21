@@ -139,6 +139,7 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
                 event_type: eventData.event_type,
                 event_logo: eventData.event_logo,
                 event_image: eventData.event_image,
+                show_location_image: eventData.show_location_image,
                 organizer_name: eventData.organizer_name,
                 organizer_email: eventData.organizer_email,
                 organizer_phone: eventData.organizer_phone,
