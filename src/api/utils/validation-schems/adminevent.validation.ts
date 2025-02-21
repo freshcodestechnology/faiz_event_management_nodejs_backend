@@ -225,7 +225,15 @@ export const adminUpdateEventSchema = Joi.object({
     sort_des_about_event: Joi.string().required().messages({
         "any.required": "Short Description About Event is required.",
         "string.base": "Short Description About Event must be a string."
-    })
+    }),
+    show_location_image: Joi.string().messages({
+        "string.uri": "Event Image must be a valid URI.",
+        "string.base": "Event Image must be a string."
+    }),
+    getting_show_location: Joi.string().messages({
+        "string.uri": "Event Image must be a valid URI.",
+        "string.base": "Event Image must be a string."
+    }),
 });
 
 export const deleteEventSchema = Joi.object({
