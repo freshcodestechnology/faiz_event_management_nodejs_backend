@@ -41,6 +41,12 @@ const iv = env.DECRYPT_KEY;
         if (user.event_image) {
             user.event_image = baseUrl +'/'+ user.event_image;
         }
+
+        if (user.show_location_image) {
+            user.show_location_image = baseUrl +'/'+ user.show_location_image;
+        }
+
+        
     
         const company_visit = await reasonSchema.find({ event_id: id });
         const visitReason = await companyActivitySchema.find({ event_id: id });
