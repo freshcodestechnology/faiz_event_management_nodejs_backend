@@ -77,13 +77,14 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         const key = env.ENCRYPT_KEY;
         const iv = env.DECRYPT_KEY;
         const { event_slug,user_token } = req.body;
-
         // const event_slug = "test-event-slug";
-
-        const event_participant_details = await eventParticipant.findOne({ user_token });
+        const token = user_token
+        const event_participant_details = await eventParticipant.findOne({ token });
         if (!event_participant_details) {
             return ErrorResponse(res, "Participant details not found");
         }
+
+        console.log(event_participant_details)
 
         const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
         // const event_details = await eventSchema.findOne({ event_slug: event_slug });
@@ -142,7 +143,6 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         // Final formatted output
         const formattedDateRange = `${earliestStartDay} - ${latestEndDay} ${latestEndMonth} ${latestEndDate.getFullYear()} - ${startTime} to ${endTime}`;
         
-        console.log(formattedDateRange)
         const participant_qr_details = JSON.stringify({
             user_token:user_token,
             event_id:event_details?.id,
@@ -357,7 +357,7 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
                     </body>
                     </html>`;
 
-                    console.log(htmlContent);
+                    // console.log(htmlContent);
             
 
         const browser = await puppeteer.launch({

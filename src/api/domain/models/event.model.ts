@@ -89,7 +89,6 @@ export const storeEvent = async (loginUserData:loginUserData,eventData: eventDat
         });
 
         const savedEvent = await newEvent.save();
-        console.log(newEvent);
         const eventId = savedEvent._id;
 
         const [visitReasonResult, companyActivityResult] = await Promise.all([
@@ -279,6 +278,7 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
         const decrypted = cryptoService.decryptCombinedValue(decoded, key, iv);
         const slug = decrypted.slug
         const user_token = decrypted.token;
+        console.log(user_token)
         const EventParticipantData = await EventParticipantSchema.findOne({ token: user_token });
         if (!EventParticipantData) {
             const event = await eventSchema.findOne({ event_slug: slug }).select('+event_logo +event_image +show_location_image');

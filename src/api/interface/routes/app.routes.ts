@@ -19,7 +19,7 @@ import { settingSchema } from "../../utils/validation-schems/setting.validation"
 import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,updateStatusCompanySchema} from "../../utils/validation-schems/company.validation";
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
-import { scannerData } from "../../utils/validation-schems/scannerData.validation";
+import { scannerData ,scannerGetData} from "../../utils/validation-schems/scannerData.validation";
 import { getEventDetailValidation } from "../../utils/validation-schems/scannerPage.validation";
 
 
@@ -69,7 +69,7 @@ import { getEventDetailValidation } from "../../utils/validation-schems/scannerP
             route.get("/get-user-details/:email",getUserDetailsUsingEmail);
             route.post("/store-participant-details",validateRequest(EventParticipantUsers),storeEventParticipantUser);
             route.get("/generate-event-pdf/:encrypt_token",generateEventPdf);
-            route.post("/generate-event-pdf-scanner",generateScannerEventPdf);
+            route.post("/generate-event-pdf-scanner",validateRequest(scannerGetData),generateScannerEventPdf);            
 
             //location module urls
             route.get('/get-country',getCountry)
