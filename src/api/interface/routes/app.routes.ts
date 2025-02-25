@@ -44,6 +44,7 @@ import { getEventDetailValidation } from "../../utils/validation-schems/scannerP
 
             //admin users url
             route.get("/get-admin-user-list", protectedRoute ,getAdminUser);
+            
             route.post("/save-admin-users",protectedRoute,validateRequest(registerUserSchema),storeAdminUser);
             route.get("/get-single-admin-users/:id",protectedRoute,getSingleAdminUser);
             route.post("/update-admin-users",protectedRoute,validateRequest(updateUserSchema),updateAdminUser);

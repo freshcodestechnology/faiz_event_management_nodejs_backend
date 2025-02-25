@@ -178,186 +178,120 @@ export const generateScannerEventPdf = async (req: Request, res: Response) => {
         });
 
         const detailsHTML = `
-            ${filterDates.map(date => `<div class="event-item">${date}</div>`).join('')}
+            ${filterDates.map((date, index) => `<div class="event-item">Day ${index + 1}: ${date}</div>`).join('')}
         `;
       
         const htmlContent = `<!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <style>
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                display: flex;
-                                background-color: #f0f0f0;
-                                font-family: 'Arial', sans-serif;
-                            }
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Email Template</title>
+   <style>
+      *{margin: 0;padding: 0;box-sizing: border-box;}
+      body{font-family: ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";}
+        .custom_design h3{
+            color: #769941;
+            font-weight: 700;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+        .custom_design p{
+            color: black;
+            margin-top: 10px;
+            font-weight: 400;
+            font-size: 10px;
+        }
+        .bg_color{
+            background-color: #e2e2e2!important;
+        }
+      </style>
+</head>
+<body>
+   <!-- ----------------Email Template start--------------- -->
+   <table style="background-color: #FFF; width: 100%;margin: 0 auto; vertical-align: top;caption-side: bottom;" align="center" cellpadding="4" cellspacing="4">
+      <tbody>
+         <tr>
+            <td width="50%" style="width: 50%; height: 50%; position: relative;padding: 4px;border: 2px dashed #212121; border-radius: 16px;vertical-align: top;">
+               <div style="max-width: 100%; font-size: 16px;line-height: 24px; font-weight: 400; padding: 16px;">
+                     <img src="`+event_details?.event_logo+`" width="200px" height="83" style="object-fit: contain; max-width: 100%;height: auto;display: block;margin: 0 auto;margin-bottom: 10px;" alt="logo" />
+                     <div style="background-color: #e2e2e2; padding: 8px; border-radius: 8px;margin-bottom: 10px;font-weight: 400;font-size: 14px;line-height: 1.2;text-align: center;">
+                        `+formattedDateRange+`<br>
+                        `+event_details?.address+`
+                     </div>
+                     <h3 style="font-weight: 600;font-size: 18px;line-height: 1.2;text-align: center;margin: 0 0 4px;">`+participant_details?.first_name+` `+participant_details?.last_name+`</h3>
+                     <p style="font-size: 14px;line-height: 1.4; font-weight: 400;margin: 0;text-align: center;">(`+participant_details?.designation+`)</p>
+                     <img src="`+base64Image+`" alt="QR Code" width="200px" height="200px" style="object-fit: contain; max-width: 100%;height: auto;display: block;margin-bottom: 10px;margin: 0 auto;" />
+                     <p style="font-size: 16px;line-height: 24px; font-weight: 600;margin: 0;text-align: center;">Badge Sponsor</p>
+                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkovjO7QDFTaE5dS4pQkW4jta1FlvfWXwUdg&amp;s" alt="Event Logo" width="200px" style="object-fit: contain; max-width: 100%;height: auto;display: block;margin: 0 auto;" />
+                     <button style="display: block; position: absolute;left: -20px;bottom: 30px;background-color: #b7e24a;color: white;border: none;font-size: 16px;cursor: pointer;transform: rotate(-90deg);margin-bottom: 0;border-radius: 12px;padding: 11px;font-weight: 700;line-height: 1;">VISITOR</button>
+               </div>
+            </td>
+            <td width="50%" style="width: 50%; height: 50%; padding: 4px;border: 2px dashed #212121; border-radius: 16px;vertical-align: top;">
+               <div class="custom_design" style="position: relative;max-width: 100%; font-size: 14px;line-height: 1.2; font-weight: 400; padding: 16px;">
+                <h3>Getting to The Show</h3>
+                <p>
+                    Bombay Exhibition Centre is India's largest exhibition venue
+                    in the private sector. It is conveniently located in Goregaon,
+                    Mumbai with close access to the local train, Metro, and the
+                    Western Express Highway.
+                </p>
+                <h3>By Road</h3>
+                <p>
+                    Bombay Exhibition Center is located along the Westerm
+                    Express Highway (service road) in Goregaon East, Mumbai
+                    and is easily accessible by auto rickshaws and taxis.
+                   
+                </p>
+                <h3>By Train</h3>
+                <p>
+                    The nearest local railway stations to reach Bombay
+                    Exhibition Center are Ram Mandir Road and Goregoon, which
+                    are situated on the Western Suburban Line. Both the stations
+                    are well connected to the other railway lines.
+                </p>
+                <h3>By Metro</h3>
+                <p>
+                    Goregaon East Station on line 7A (Red Line) is the nearest
+                metro station to reach Bombay Exhilbition Center. The venue
+                is a couple of minutes walk from the metro station
+                    
+                </p>
+                <h3>By Air</h3>
+                <p>
+                    Domestic Airport: It takes 30 minutes to travel from Mumbai
+                Domestic Airport-Terminal 1 to BEC. The appraximate drivingdistance between Nesco and Mumbai Domestic Airport is 7
+                kms. or 4.3 miles or 3.8 nautical miles.
+                </p>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td width="50%" style="width: 50%; height: 50%; padding: 4px;border: 2px dashed #212121; border-radius: 16px;vertical-align: top;">
+               <div style="position: relative;max-width: 100%; font-size: 14px;line-height: 1.3; font-weight: 400; padding: 16px;">
+                  <h3 style="text-align: center;margin-bottom: 10px;color: #b9b907;">Attend the informative <br> sessions in the conference arena</h3>
+                  <p style="text-align: center;">Scan the QR code below to view the agenda:</p>
+                  <img src="`+base64Image+`" alt="QR Code" width="200px" height="200px" style="object-fit: contain; max-width: 100%;height: auto;display: block;margin-bottom: 10px;margin: 0 auto;" />
+                  <hr/>
+                  <h5 style="text-align: center;font-size: 16px;font-weight: 600;margin-bottom: 10px; margin-top: 10px;">Date and Time</h5>
+                  <ul style="padding: 0;margin: 0;list-style: none;font-size: 13px;line-height: 1.4;text-align: center;">
+                    `+detailsHTML+`
+                  </ul>
+               </div>
+            </td>
+            <td width="50%" style="width: 50%; height: 50%; padding: 4px;border: 2px dashed #212121; border-radius: 16px;vertical-align: top;">
+               <div style="position: relative;max-width: 100%; font-size: 16px;line-height: 24px; font-weight: 400; padding: 16px;">
+                  <img src="`+event_details?.show_location_image+`" alt="Completed Project" style="max-width: 90%;width: 100%; height: auto;display: block;margin: 0 auto;" />
+               </div>
+            </td>
+         </tr>
+      </tbody>
+   </table>
+   <!-- ----------------Email Template end--------------- -->
+</body>
+</html>`;
 
-                            /* A4 page setup */
-                            .a4-container {
-                                width: 210mm;
-                                height: 297mm;
-                                display: grid;
-                                grid-template-columns: 1fr 1fr;
-                                grid-template-rows: 1fr 1fr;
-                                grid-gap: 2mm;
-                                box-sizing: border-box;
-                                background: white;
-                                padding: 5mm;
-                                border: 1px solid black;
-                                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-                            }
-
-                            .section {
-                                position: relative;
-                                display: flex;
-                                flex-direction: column;
-                                align-items: center;
-                                font-size: 14px;
-                                text-align: center;
-                                padding: 10px;
-                                border: 1px solid #ccc;
-                                border-radius: 8px;
-                                box-sizing: border-box;
-                            }
-
-                            .section_2 {
-                                position: relative;
-                                display: flex;
-                                flex-direction: column;
-                                font-size: 14px;
-                                padding: 10px;
-                                border: 1px solid #ccc;
-                                border-radius: 8px;
-                                box-sizing: border-box;
-                            }
-
-                            .section img {
-                                margin-bottom: 10px;
-                                width: 70%;
-                                height: auto;
-                            }
-
-                            .section .heading {
-                                font-size: 18px;
-                                font-weight: bold;
-                                margin-bottom: 5px;
-                            }
-
-                            .section .subheading {
-                                font-size: 12px;
-                                color: #777;
-                                margin-bottom: 10px;
-                            }
-
-                            .section .event-item {
-                                font-size: 12px;
-                                margin: 4px;
-                            }
-
-                            .section .qr-code {
-                                width: 200px;
-                                height: auto;
-                                margin-top: 10px;
-                            }
-
-                            /* Add dashed borders for better visibility */
-                            .border-dashed {
-                                border: 2px dashed rgb(3, 3, 3);
-                            }
-
-                            .text-center {
-                                text-align: center;
-                            }
-                            .content_css h4,.content_css p{    
-                                float: left;
-                                margin: 0;
-                                padding: 0;
-                            }
-                            .content_css h4{
-                                color:  rgb(82 104 49);
-                            }
-                            .content_css div{
-                                margin-top: 2px;
-                                text-align: justify;
-                                margin-top: 15px;
-                            }
-                            .content_css p{   
-                                margin-top: 15px;
-                            font-size: 10px;
-                            }
-                            .heading_second{
-                                font-size: 14px;
-                                font-weight: bold;
-                                margin-bottom: 5px;
-                            }
-                            .button {
-                                position: absolute!important;
-                                left: 20px;
-                                bottom: 20px;
-                                padding: 10px 20px;
-                                background-color: #b7e24a;;
-                                color: white;
-                                border: none;
-                                border-radius: 5px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                transform: rotate(-90deg);
-                                margin-left: -55PX;
-                                margin-bottom: 21px;
-                                border-radius: 0;
-                                padding: 11px;
-                                font-weight: 700;
-                                font-size: 25px;
-                            }
-
-                            .button:hover {
-                                background-color: #357ABD;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="a4-container">
-                        
-                            <div class="section border-dashed">
-                                <img src="`+event_details?.event_logo+`" alt="Event Logo" style="height: 100px; border-radius: 10px;">
-                            
-                                <div style="background: #c5cdbe80;
-                                width: 100%; font-weight: bold;">
-                                    <div class="event-item">`+formattedDateRange+`</div>
-                                    <div class="event-item">`+event_details?.address+`</div>
-                                </div>
-                                <p class="heading">`+participant_details?.first_name+` `+participant_details?.last_name+`</p>
-                                <p class="heading_second">(`+participant_details?.designation+`)</p>
-                                <img src="`+base64Image+`" alt="QR Code" class="qr-code">
-                                <p class="heading_second">Badge Sponsor</p>
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkovjO7QDFTaE5dS4pQkW4jta1FlvfWXwUdg&s" alt="Event Logo" style="height: 80px; border-radius: 10px;">
-                                <div class="border-dashed" style="border-color:white;">
-                                    <button class="button">VISITOR</button>
-                                </div>
-                            </div>
-                            <div class="section_2 border-dashed content_css" style="float: left;">
-                                `+event_details?.getting_show_location+`
-                            </div>
-                            <div class="section border-dashed">
-                                <div class="text-center">
-                                    <h2 style="color:#b9b907;">Attend the informative <br> sessions in the <br> conference arena</h2>
-                                    <p>Scan the QR code below to view the agenda:</p>
-                                    <img src="`+base64Image+`" alt="QR Code" style="height: 100px; height: 200px;">
-                                    <hr>
-                                    <h4>Date and Time</h4>
-                                    `+detailsHTML+`
-                                </div>
-                            </div>
-                            <div class="section border-dashed">
-                                <img src="`+event_details?.show_location_image+`" alt="Completed Project" style="width: 100; height: auto;">
-                            </div>
-                        </div>
-                    </body>
-                    </html>`;
-
-                    // console.log(htmlContent);
+                    console.log(htmlContent);
             
 
         const browser = await puppeteer.launch({
