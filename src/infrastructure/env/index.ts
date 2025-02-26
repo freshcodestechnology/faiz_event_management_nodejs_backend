@@ -28,6 +28,10 @@ export const env = {
     ENCRYPT_KEY :process.env.ENCRYPT_KEY,
     DECRYPT_KEY:process.env.DECRYPT_KEY,
     BASE_URL: process.env.BASE_URL,
+    AWS_ACCESS_KEY_ID :process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY:process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_REGION: process.env.AWS_REGION,
+    AWS_BUCKET : process.env.AWS_BUCKET,
     // SITE_TITLE: process.env.SITE_TITLE,
     // APP_URL: process.env.APP_URL,
 

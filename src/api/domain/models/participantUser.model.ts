@@ -9,6 +9,7 @@ import QRCode from "qrcode";
 import eventSchema from "../../domain/schema/event.schema";
 import { env } from "process";
 import fs from "fs";
+import AWS from "aws-sdk";
 
 interface ParticipantUsersData {
     first_name: string;
@@ -26,6 +27,8 @@ interface ParticipantUsersData {
     company_activity: string;
     user_token?: string;
     event_id?: string;
+    image_url?: string;
+    face_id?: string;
 }
 
 const qrDirectory = path.join(__dirname, "..", "..", "..", "..","..","uploads"); 
@@ -35,8 +38,10 @@ if (!fs.existsSync(qrDirectory)) {
 }
 
 
+
 export const storeParticipantUser = async (participantUserData: ParticipantUsersData, callback: (error: any, result: any) => void) => {
     try {    
+       
         const existingUser = await participantUsers.findOne({ email: participantUserData.email });
         if (existingUser) {
           
@@ -49,6 +54,7 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
             existingUser.state = participantUserData.state;
             existingUser.city = participantUserData.city;
             existingUser.address = participantUserData.address;
+           
 
             const updatedUser = await existingUser.save();
 
@@ -64,7 +70,7 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                 country: participantUserData.country,
                 state: participantUserData.state,
                 city: participantUserData.city,
-                address: participantUserData.address
+                address: participantUserData.address,
             });
 
             const savedUser = await newParticipantUser.save();
@@ -74,14 +80,18 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
         const existingUserId = await participantUsers
         .findOne({ email: participantUserData.email })
         .select('_id');
-        
+
+        // console.log("image_urlimage_urlimage_urlimage_urlimage_url",participantUserData.image_url);
+        // console.log("face_idface_idface_idface_idface_idface_idface_idface_idface_idface_id",participantUserData.face_id)
         const EventParticipants = new EventParticipant({
             participant_user_id :existingUserId?._id,
             event_id : participantUserData.event_id,
             token : participantUserData.user_token,
             visit_reason : participantUserData.visit_reason,
             referral_source : participantUserData.referral_source,
-            company_activity : participantUserData.company_activity
+            company_activity : participantUserData.company_activity,
+            image_url : participantUserData.image_url,
+            face_id : participantUserData.face_id,
         });
 
         const saveEventParticipants = await EventParticipants.save();
@@ -100,7 +110,9 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
           const baseUrl = env.BASE_URL;
            const event_participant_details = await EventParticipant.findOne({ token });
                   if (!event_participant_details) {
-                      return ErrorResponse(baseUrl, "Participant details not found");
+                    const error = "Participant details not found";
+                    return callback(error, null); 
+                    //   return ErrorResponse(baseUrl, "Participant details not found");
                   }
           
                   const event_details = await eventSchema.findOne({ _id: event_participant_details.event_id });
@@ -117,7 +129,9 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                   const participant_details = await participantUsers.findOne({ _id: event_participant_details.participant_user_id });
           
                   if (!participant_details) {
-                      return ErrorResponse(baseUrl, "Participant User not found");
+                    const error = "Participant details not found";
+                    return callback(error, null); 
+                    //   return ErrorResponse(baseUrl, "Participant User not found");
                   }
           
                   const startDates: string[] = event_details?.start_date || []; 
@@ -306,6 +320,7 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     text: `Hello ${participantUserData.first_name},\n\nThank you for signing up! We're excited to have you onboard.\n\nBest Regards,\nYour Company Name`, // Customize the email body
                     html: htmlContent
                 };
+                try {
                   transporter.sendMail(mailOptions, (error, info) => {
                     if (error) {
                       console.error('Error sending email:', error);
@@ -314,6 +329,10 @@ export const storeParticipantUser = async (participantUserData: ParticipantUsers
                     console.log('Email sent successfully:', info.response);
                     callback(null, { message: 'Participant stored and email sent successfully' }); 
                   });
+                } catch (err) {
+                    console.log(err)
+                    return callback(null, saveEventParticipants);
+                }
         
         return callback(null, saveEventParticipants);
 

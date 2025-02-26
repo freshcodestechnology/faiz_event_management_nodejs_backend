@@ -8,10 +8,17 @@ import { env } from "process";
 import multer from "multer"
 import fs from "fs";
 import { cryptoService } from "../../services/cryptoService";
+import { detectFace } from "../../services/rekognitionService";
 import puppeteer from "puppeteer";
 import path from "path";
 import QRCode from "qrcode";
-
+import { RekognitionClient, IndexFacesCommand,CreateCollectionCommand  } from "@aws-sdk/client-rekognition";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
+const rekognition = new RekognitionClient({ region: process.env.AWS_REGION });
+const s3 = new S3Client({ region: process.env.AWS_REGION || "ap-south-1", // Ensure this matches your actual bucket region
+    endpoint: `https://s3.${process.env.AWS_REGION}.amazonaws.com`, });
+const FACE_COLLECTION_ID = "levenex_collection";
 
 interface FileWithBuffer extends Express.Multer.File {
 buffer: Buffer;
@@ -19,8 +26,89 @@ buffer: Buffer;
   
 const upload = multer();
 
+export const scanFaceId = async (req: Request, res: Response) => {
+    try {   
+        req.file = req.file as FileWithBuffer;
+
+        if (!req.file) {
+            return res.status(400).json({ error: "No image uploaded" });
+        }
+
+        const faceId = await detectFace(req.file.buffer);
+        console.log(faceId);
+    } catch (error) {
+       
+    }
+}
+
 export const storeEventParticipantUser = async (req: Request, res: Response) => {
     try {
+        //   console.log("zxczcxz")
+        var uploadedImage = "";
+
+        try {
+            const command = new CreateCollectionCommand({ CollectionId: FACE_COLLECTION_ID });
+            const response = await rekognition.send(command);
+    
+            // console.log("Collection Created:", response);
+        } catch (error) {
+            // console.error("Error creating collection:", error);
+        }
+        try {
+            // Take only the first uploaded image
+            const file = (req.files as Express.Multer.File[])[0];
+            const imageBuffer = file.buffer;
+            const fileKey = `${uuidv4()}.jpg`;
+            
+            // Upload image to S3
+            await s3.send(new PutObjectCommand({
+                Bucket: "levenex-participant-images",
+                Key: fileKey,
+                Body: imageBuffer,
+                ContentType: file.mimetype
+            }));
+    
+            // Index face in Rekognition
+            const indexCommand = new IndexFacesCommand({
+                CollectionId: "levenex_collection",
+                Image: { Bytes: imageBuffer },
+                ExternalImageId: fileKey,
+                DetectionAttributes: ["DEFAULT"]
+            });
+    
+            const indexResult = await rekognition.send(indexCommand);
+    
+            // Check if a valid face was detected
+            if (!indexResult.FaceRecords || indexResult.FaceRecords.length === 0) {
+                return res.status(400).json({ error: "No valid face detected in the image" });
+            }
+    
+            // Store face ID and image URL
+            const faceId = indexResult.FaceRecords[0].Face?.FaceId;
+            uploadedImage = fileKey;
+            // console.log(__dirname);
+            // const savePath = path.join(__dirname, "../../../../uploads/participants");
+
+            // if (!fs.existsSync(savePath)) {
+            //     fs.mkdirSync(savePath, { recursive: true });
+            // }
+
+           const savePath = path.join("uploads/participants", fileKey); 
+                       
+            fs.writeFileSync(savePath, file.buffer); 
+    
+            // Attach image URL and face ID to request body
+            req.body.image_url = 'participant/'+fileKey;
+            req.body.face_id = faceId;
+            // console.log("fileKeyfileKeyfileKeyfileKey",fileKey)
+            // console.log("faceIdfaceIdfaceIdfaceIdfaceIdfaceId",faceId)
+    
+        } catch (error) {
+            console.error("Error processing image:", error);
+            return res.status(500).json({ error: "Image upload and face recognition failed" });
+        }
+
+        // console.log(uploadedImage);
         
         storeParticipantUser(req.body, (error:any, result:any) => {
             if (error) {
