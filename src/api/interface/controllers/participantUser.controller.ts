@@ -137,12 +137,13 @@ export const getUserDetailsUsingEmail = async (req: Request, res: Response) => {
         }
 
         const user = await participantUsers.findOne({ email });
-
+        const face_scanner = true;
         if (!user) {
-            return ErrorResponse(res, "Participant User not found");
+            const user = null;
+            return successResponse(res, 'Get Participant User List', {face_scanner,user});
         }
-
-        return successResponse(res, 'Get Participant User List', user);
+       
+        return successResponse(res, 'Get Participant User List', {face_scanner,user});
     } catch (error) {
        
     }
