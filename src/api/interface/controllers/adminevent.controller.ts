@@ -270,9 +270,7 @@ export const getTokeneventDetails = async (req:Request , res:Response) =>{
             if (error) {
                 ErrorResponse(res,'Invalid or expired token.')
             }
-            const face_scanner = true;
             return successResponse(res, 'success', {
-                face_scanner,
                 result,
             });
 
