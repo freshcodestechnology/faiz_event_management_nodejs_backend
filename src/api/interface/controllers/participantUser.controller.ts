@@ -12,19 +12,229 @@ import { detectFace } from "../../services/rekognitionService";
 import puppeteer from "puppeteer";
 import path from "path";
 import QRCode from "qrcode";
-import { RekognitionClient, IndexFacesCommand,CreateCollectionCommand  } from "@aws-sdk/client-rekognition";
+import { RekognitionClient, IndexFacesCommand,CreateCollectionCommand ,SearchFacesByImageCommand,CompareFacesCommand, CompareFacesResponse  } from "@aws-sdk/client-rekognition";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
-const rekognition = new RekognitionClient({ region: process.env.AWS_REGION });
-const s3 = new S3Client({ region: process.env.AWS_REGION || "ap-south-1", // Ensure this matches your actual bucket region
-    endpoint: `https://s3.${process.env.AWS_REGION}.amazonaws.com`, });
+import AWS from "aws-sdk"
+
+const rekognition = new RekognitionClient({
+    region: process.env.AWS_REGION
+});
+
+const s3 = new S3Client({
+    region: "us-east-1",
+    endpoint: `https://s3.us-east-1.amazonaws.com`, // ✅ Explicitly use the correct region
+    forcePathStyle: true // ✅ Important to prevent redirect issues
+});
+
+const ss3 = new S3Client({
+    region: "ap-south-1",
+    endpoint: `https://s3.ap-south-1.amazonaws.com`, // ✅ Explicitly use the correct region
+    forcePathStyle: true // ✅ Important to prevent redirect issues
+});
+
 const FACE_COLLECTION_ID = "levenex_collection";
+const AWS_BUCKET_NAME = "levenex-participant-images";
 
 interface FileWithBuffer extends Express.Multer.File {
 buffer: Buffer;
 }
   
 const upload = multer();
+
+export const scanParticipantFace = async (req: Request, res: Response) => {
+    try {
+        const baseUrl = env.BASE_URL;
+        const eventId = req.body.event_id;
+        const scanner_type = req.body.scanner_type;
+        var user_image_date = "";
+
+        const event_details = await eventSchema.findOne({ 
+            _id: eventId,    
+        });
+
+        if (!event_details) {
+            return ErrorResponse(res, "Event Details Not Found");
+        }
+
+        const file = (req.files as Express.Multer.File[])[0];
+        if (!file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const imageBuffer = file.buffer;
+        const fileKey = `${uuidv4()}.jpg`;
+
+        
+        const participants = await eventParticipant.find({ event_id: eventId });
+
+        if (!participants.length) {
+            // return ErrorResponse(res, "No participants found for this event");
+            // return res.status(404).json({ error: "No participants found for this event" });
+        }
+
+        let matchedParticipant = null;
+
+        for (const participant of participants) {
+            if (participant.image_url && participant.image_url.trim() !== "") {
+                const imageKey = participant.image_url; 
+                user_image_date = baseUrl+'/uploads/participants/'+participant.image_url
+        
+                const compareCommand = new CompareFacesCommand({
+                    SourceImage: { Bytes: imageBuffer }, 
+                    TargetImage: { 
+                        S3Object: { Bucket: AWS_BUCKET_NAME, Name: imageKey } 
+                    },
+                    SimilarityThreshold: 70
+                });
+
+                const compareResult = await rekognition.send(compareCommand);
+
+                if (compareResult.FaceMatches && compareResult.FaceMatches.length > 0) {
+                    matchedParticipant = participant;
+                    break; 
+                }
+            }
+        }
+
+        if (matchedParticipant) {
+        const participant_details = await participantUsers.findOne({ _id: matchedParticipant.participant_user_id });
+
+        if (!participant_details) {
+            return ErrorResponse(res, "Participant User Not Found");
+        }
+        var color_status = "";
+        var scanning_msg = "";
+
+        const event_participant_details = await eventParticipant.findOne({ 
+            _id: matchedParticipant._id 
+        });
+        
+        if (!event_participant_details) {
+            return ErrorResponse(res, "Participant details not found");
+        }
+        
+        if (scanner_type == 0) { 
+            if (event_participant_details.status == "in") {
+                scanning_msg = "You are already in the event";
+                color_status = "yellow";
+            } else {
+                event_participant_details.checkin_time = new Date();
+                event_participant_details.status = "in";
+                await event_participant_details.save();
+                scanning_msg = "You are now checked into the event";
+                color_status = "green";
+            }
+        }
+        
+        if (scanner_type == 1) { 
+            if (event_participant_details.status != "in") {
+                scanning_msg = "You can't check out without checking in";
+                color_status = "red";
+            } else {
+                event_participant_details.checkout_time = new Date();
+                event_participant_details.status = "out";
+                await event_participant_details.save();
+                scanning_msg = "You are now checked out from the event";
+                color_status = "green";
+            }
+        }        
+        event_participant_details.qr_image = baseUrl +'/uploads/'+ event_participant_details.qr_image;
+        const resutl = [];
+        event_details.event_logo= `${env.BASE_URL}/${event_details.event_logo}`
+        event_details.event_image= `${env.BASE_URL}/${event_details.event_image}`
+        resutl.push(event_details);
+        resutl.push(event_participant_details);
+        resutl.push(participant_details);
+        resutl.push({"user_image":user_image_date});
+        resutl.push({"color_status":color_status,"scanning_msg":scanning_msg});
+        return successResponse(res, 'Participant User Details', resutl);
+        } else {
+            return ErrorResponse(res, "No matching face found");
+        }
+    } catch (error) {
+        return ErrorResponse(res, "Face recognition failed");
+    }
+};
+
+// export const scanParticipantFace = async (req: Request, res: Response) => {
+//     try {
+//         const file = (req.files as Express.Multer.File[])[0];
+//         const imageBuffer = file.buffer;
+//         const fileKey = `${uuidv4()}.jpg`;
+
+//         // ✅ Upload Image to S3
+//         await s3.send(new PutObjectCommand({
+//             Bucket: AWS_BUCKET_NAME,
+//             Key: fileKey,
+//             Body: imageBuffer,
+//             ContentType: file.mimetype
+//         }));
+
+//         // ✅ Index Face in Rekognition
+//         const indexCommand = new IndexFacesCommand({
+//             CollectionId: FACE_COLLECTION_ID,
+//             Image: { Bytes: imageBuffer },
+//             ExternalImageId: fileKey,
+//             DetectionAttributes: ["DEFAULT"]
+//         });
+
+//         const indexResult = await rekognition.send(indexCommand);
+
+//         if (!indexResult.FaceRecords || indexResult.FaceRecords.length === 0) {
+//             return res.status(400).json({ error: "No valid face detected in the image" });
+//         }
+
+//         const faceId = indexResult.FaceRecords[0].Face?.FaceId;
+//         const eventId = req.body.event_id;
+
+//         // ✅ Correct Participant Query
+//         const participants = await eventParticipant.find({ event_id: eventId });
+
+//         if (!participants.length) {
+//             return res.status(404).json({ error: "No participants found for this event" });
+//         }
+
+//         let matchedParticipant = null;
+
+//         for (const participant of participants) {
+//             if (participant.image_url && participant.image_url.trim() !== "") {
+//                 const imageKey = "http://localhost:3000/uploads/"+participant.image_url; // ✅ Use S3 key, not a URL
+
+//                 console.log(`Comparing with: ${imageKey}`);
+
+//                 const compareCommand = new SearchFacesByImageCommand({
+//                     CollectionId: FACE_COLLECTION_ID,
+//                     Image: {
+//                         S3Object: {
+//                             Bucket: AWS_BUCKET_NAME,
+//                             Name: imageKey
+//                         }
+//                     },
+//                     MaxFaces: 1,
+//                     FaceMatchThreshold: 90
+//                 });
+
+//                 const compareResult = await rekognition.send(compareCommand);
+//                 console.log(compareResult?.FaceMatches?.length);
+//                 if (compareResult.FaceMatches && compareResult.FaceMatches.length > 0) {
+//                     matchedParticipant = participant;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         if (matchedParticipant) {
+//             return successResponse(res, "Participant Matched", matchedParticipant);
+//         } else {
+//             return res.status(404).json({ error: "No matching face found" });
+//         }
+
+//     } catch (error) {
+//         console.error("Error processing face match:", error);
+//         return res.status(500).json({ error: "Face recognition failed" });
+//     }
+// };
 
 export const scanFaceId = async (req: Request, res: Response) => {
     try {   
@@ -61,8 +271,8 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
             const fileKey = `${uuidv4()}.jpg`;
             
             // Upload image to S3
-            await s3.send(new PutObjectCommand({
-                Bucket: "levenex-participant-images",
+            await ss3.send(new PutObjectCommand({
+                Bucket: AWS_BUCKET_NAME,
                 Key: fileKey,
                 Body: imageBuffer,
                 ContentType: file.mimetype
@@ -70,7 +280,7 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
     
             // Index face in Rekognition
             const indexCommand = new IndexFacesCommand({
-                CollectionId: "levenex_collection",
+                CollectionId: FACE_COLLECTION_ID,
                 Image: { Bytes: imageBuffer },
                 ExternalImageId: fileKey,
                 DetectionAttributes: ["DEFAULT"]
@@ -98,7 +308,7 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
             fs.writeFileSync(savePath, file.buffer); 
     
             // Attach image URL and face ID to request body
-            req.body.image_url = 'participant/'+fileKey;
+            req.body.image_url = fileKey;
             req.body.face_id = faceId;
             // console.log("fileKeyfileKeyfileKeyfileKey",fileKey)
             // console.log("faceIdfaceIdfaceIdfaceIdfaceIdfaceId",faceId)

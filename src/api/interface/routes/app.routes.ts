@@ -9,7 +9,7 @@ import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScanne
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
 
 import { getEventDetailsSlug,scannerPageLogin } from "../../interface/controllers/ScannerPage.controller";
-import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,generateScannerEventPdf,getParticipantDetails,getParticipantDetailsScanner,scanFaceId } from "../../interface/controllers/participantUser.controller";
+import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,generateScannerEventPdf,getParticipantDetails,getParticipantDetailsScanner,scanFaceId,scanParticipantFace } from "../../interface/controllers/participantUser.controller";
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema,scannerPageLoginUserSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
@@ -20,7 +20,7 @@ import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,update
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
 import { scannerData ,scannerGetData} from "../../utils/validation-schems/scannerData.validation";
-import { getEventDetailValidation } from "../../utils/validation-schems/scannerPage.validation";
+import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/validation-schems/scannerPage.validation";
 
 
 
@@ -104,6 +104,7 @@ import { getEventDetailValidation } from "../../utils/validation-schems/scannerP
             route.get('/get-scanner-machine/:scanner_machine_id',protectedRoute ,getScannerMachineDetails)
             route.get("/check-scanner-machine", protectedRoute ,checkUniqueMachineId);
             route.post("/scan-face-id" ,scanFaceId);
+            route.post("/scan-participant-face",validateRequest(scanParticipantFaceSchema),scanParticipantFace);
             
             route.post('/get-event-details-slug',validateRequest(getEventDetailValidation),getEventDetailsSlug);
             
