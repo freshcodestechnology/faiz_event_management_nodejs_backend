@@ -62,6 +62,16 @@ export const scanParticipantFace = async (req: Request, res: Response) => {
             return res.status(400).json({ error: "No file uploaded" });
         }
 
+        const allowedMimeTypes = ['image/png', 'image/jpeg'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+            return ErrorResponse(res, "Only PNG and JPG files are allowed");
+        }
+
+        const maxSize = 5 * 1024 * 1024; 
+        if (file.size > maxSize) {
+            return ErrorResponse(res, "File size must be less than 5MB");
+        }
+
         const imageBuffer = file.buffer;
         const fileKey = `${uuidv4()}.jpg`;
 
@@ -255,6 +265,7 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
     try {
         //   console.log("zxczcxz")
         var uploadedImage = "";
+        
 
         try {
             const command = new CreateCollectionCommand({ CollectionId: FACE_COLLECTION_ID });
@@ -267,6 +278,15 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
         try {
             // Take only the first uploaded image
             const file = (req.files as Express.Multer.File[])[0];
+            const allowedMimeTypes = ['image/png', 'image/jpeg'];
+            if (!allowedMimeTypes.includes(file.mimetype)) {
+                return ErrorResponse(res, "Only PNG and JPG files are allowed");
+            }
+    
+            const maxSize = 5 * 1024 * 1024; 
+            if (file.size > maxSize) {
+                return ErrorResponse(res, "File size must be less than 5MB");
+            }
             const imageBuffer = file.buffer;
             const fileKey = `${uuidv4()}.jpg`;
             
