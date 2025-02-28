@@ -16,6 +16,7 @@ import { RekognitionClient, IndexFacesCommand,CreateCollectionCommand ,SearchFac
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import AWS from "aws-sdk"
+import sharp from "sharp";
 
 const rekognition = new RekognitionClient({
     region: process.env.AWS_REGION
@@ -73,6 +74,10 @@ export const scanParticipantFace = async (req: Request, res: Response) => {
         }
 
         const imageBuffer = file.buffer;
+        const compressedImageBuffer = await sharp(file.buffer)
+            .resize(100) // Resize to max 300px width (adjust as needed)
+            .jpeg({ quality: 100 }) // Convert to JPEG with 60% quality
+            .toBuffer();
         const fileKey = `${uuidv4()}.jpg`;
 
         
@@ -91,7 +96,7 @@ export const scanParticipantFace = async (req: Request, res: Response) => {
                 user_image_date = baseUrl+'/uploads/participants/'+participant.image_url
         
                 const compareCommand = new CompareFacesCommand({
-                    SourceImage: { Bytes: imageBuffer }, 
+                    SourceImage: { Bytes: compressedImageBuffer }, 
                     TargetImage: { 
                         S3Object: { Bucket: AWS_BUCKET_NAME, Name: imageKey } 
                     },
@@ -287,7 +292,11 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
             if (file.size > maxSize) {
                 return ErrorResponse(res, "File size must be less than 5MB");
             }
-            const imageBuffer = file.buffer;
+            // const imageBuffer = file.buffer;
+            const imageBuffer = await sharp(file.buffer)
+            .resize(100) // Resize to max 300px width (adjust as needed)
+            .jpeg({ quality: 100 }) // Convert to JPEG with 60% quality
+            .toBuffer();
             const fileKey = `${uuidv4()}.jpg`;
             
             // Upload image to S3

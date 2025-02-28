@@ -3,6 +3,10 @@ import { successCreated, successResponse ,ErrorResponse } from "../../helper/api
 import countrySchema from "../../domain/schema/country.schema";
 import stateSchema from "../../domain/schema/state.schema";
 import citySchema from "../../domain/schema/city.schema";
+import XLSX from "xlsx";
+import fs from "fs";
+import path from "path";
+import { Collection } from "mongoose";
 
 
 interface FileWithBuffer extends Express.Multer.File {
@@ -68,5 +72,64 @@ export const getCity = async (req: Request, res: Response) => {
         return ErrorResponse(res, "An error occurred during event retrieval.")
     }
 };
+
+export const importXlsxData = async (req: Request, res: Response) => {
+    try {
+        // Define file name & folder path
+        const filename = "cities-list.xlsx";
+        const folderPath = path.join(__dirname, "../../../../uploads"); // Ensure this folder exists
+        const filePath = path.join(folderPath, filename);
+
+        console.log("Reading file from:", filePath);
+
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: "File not found." });
+        }
+
+        // Read the Excel file
+        const workbook = XLSX.readFile(filePath);
+        const sheetName = workbook.SheetNames[0];
+        const sheetData: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        // Validate Excel format
+        if (!sheetData.length || !sheetData[0].state || !sheetData[0].city) {
+            return res.status(400).json({ success: false, message: "Invalid Excel format. Ensure columns are named 'State' and 'City'." });
+        }
+
+        // Country ID (static for now, update dynamically if needed)
+        const country_id = "67610db09c6d81094c056ee4";
+        var idsss = 1;
+        // Process each row from Excel
+        for (const row of sheetData) {
+            console.log("statestatestatestate_data_type",idsss++);
+            const stateName = row.state.trim();
+            const cityName = row.city.trim();
+
+            // Check if state exists
+            let state = await stateSchema.findOne({ name: stateName, country_id });
+            console.log("statestatestatestatestatestatestatestate",state);
+            // If state does not exist, create it
+            if (!state) {
+                state = new stateSchema({ name: stateName, country_id });
+                await state.save();
+            }
+
+            // Check if city exists under this state
+            const existingCity = await citySchema.findOne({ name: cityName, state_id: state._id });
+            console.log("existingCityexistingCityexistingCityexistingCityexistingCityexistingCity",existingCity)
+            // If city does not exist, create it
+            if (!existingCity) {
+                await new citySchema({ name: cityName, state_id: state._id }).save();
+            }
+        }
+
+        return successResponse(res, "States and cities imported successfully.","success");
+    } catch (error) {
+        console.error("Error importing data:", error);
+        return ErrorResponse(res, "An error occurred while importing data.");
+    }
+};
+
 
 

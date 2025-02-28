@@ -3,7 +3,7 @@ import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
 import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
-import { getCountry,getState,getCity } from "../../interface/controllers/location.controller";
+import { getCountry,getState,getCity,importXlsxData } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
 import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine,getScannerMachineDetails,checkUniqueMachineId } from "../../interface/controllers/scannerMachine.controller";
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
@@ -77,6 +77,7 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.get('/get-state/:id',getState)
             route.get('/get-city/:id',getCity)
             route.get('/scanner-page',getSetting)
+            route.post("/importXlsxData",importXlsxData)
             route.post('/update-button-setting',validateRequest(settingSchema),updateSetting)
             route.post('/get-praticipent-details',validateRequest(getParticipantDetailsSchema),getParticipantDetails)
             
