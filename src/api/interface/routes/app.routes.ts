@@ -20,6 +20,8 @@ import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,update
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
 import { scannerData ,scannerGetData} from "../../utils/validation-schems/scannerData.validation";
+import { blogValidation,updateBlogValidation,homeBlogdetailsValidation } from "../../utils/validation-schems/blogValidation.validation";
+import { getEventBlog,storeBlogController,eventBlogDetailsController, updateBlogController,locationWiseEventList,locationWiseBlogDetails} from "../../interface/controllers/eventBlog.conroller";
 import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/validation-schems/scannerPage.validation";
 
 
@@ -115,7 +117,17 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             //changePasswordSchema
             route.post("/change-password",protectedRoute,validateRequest(changePasswordSchema),changePassword);
             
+            //levenex blogs
+            route.get("/blogs-listing",protectedRoute,getEventBlog);
+            route.post("/add-blog",protectedRoute,validateRequest(blogValidation),storeBlogController);
+            route.post("/update-blog",protectedRoute,validateRequest(updateBlogValidation),updateBlogController);
+            route.get("/blog-details/:id",protectedRoute,eventBlogDetailsController);
 
+
+            //show frontend side
+            route.get("/event-blog-listing",locationWiseEventList)
+            route.post("/home-page-blog-details",validateRequest(homeBlogdetailsValidation),locationWiseBlogDetails)
+            
         } catch (error) {
             // Log any errors that occur during route definition
             console.log(error, 'warn')

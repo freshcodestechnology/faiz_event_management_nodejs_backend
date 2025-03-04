@@ -1108,7 +1108,7 @@
 		},
 		{
 			"key": "BASEURL",
-			"value": "http://148.72.144.28:3000",
+			"value": "https://eventservices.in",
 			"type": "string"
 		}
 	]
