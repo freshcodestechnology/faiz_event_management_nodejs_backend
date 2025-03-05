@@ -3,7 +3,7 @@ import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
 import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
-import { getCountry,getState,getCity,importXlsxData } from "../../interface/controllers/location.controller";
+import { getCountry,getState,getCity,importXlsxData,getHomePageCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
 import { storeScannerMachine,updateScannerMachine,deleteScannerMachine,getScannerMachine,assignScannerMachine,removeAssignScannerMachine,getScannerMachineDetails,checkUniqueMachineId } from "../../interface/controllers/scannerMachine.controller";
 import { storeCompanyController,getCompany,getCompanyDetails,updateCompanyController,deleteCompany,updateCompanyStatus } from "../../interface/controllers/company.controller";
@@ -20,8 +20,8 @@ import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,update
 import { getParticipantDetailsSchema } from "../../utils/validation-schems/participantDetails.validation";
 import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachineSchema,assignScannerMachineSchema } from "../../utils/validation-schems/scannerMachine.validation";
 import { scannerData ,scannerGetData} from "../../utils/validation-schems/scannerData.validation";
-import { blogValidation,updateBlogValidation,homeBlogdetailsValidation } from "../../utils/validation-schems/blogValidation.validation";
-import { getEventBlog,storeBlogController,eventBlogDetailsController, updateBlogController,locationWiseEventList,locationWiseBlogDetails} from "../../interface/controllers/eventBlog.conroller";
+import { blogValidation,updateBlogValidation,homeBlogdetailsValidation,deleteEventBlog } from "../../utils/validation-schems/blogValidation.validation";
+import { getEventBlog,storeBlogController,eventBlogDetailsController, updateBlogController,locationWiseEventList,locationWiseBlogDetails,deleteEventBlogController} from "../../interface/controllers/eventBlog.conroller";
 import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/validation-schems/scannerPage.validation";
 
 
@@ -122,9 +122,10 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.post("/add-blog",protectedRoute,validateRequest(blogValidation),storeBlogController);
             route.post("/update-blog",protectedRoute,validateRequest(updateBlogValidation),updateBlogController);
             route.get("/blog-details/:id",protectedRoute,eventBlogDetailsController);
-
+            route.post("/delete-event-blog", protectedRoute,validateRequest(deleteEventBlog),deleteEventBlogController)
 
             //show frontend side
+            route.get('/get-homepage-cities-data',getHomePageCity);
             route.get("/event-blog-listing",locationWiseEventList)
             route.post("/home-page-blog-details",validateRequest(homeBlogdetailsValidation),locationWiseBlogDetails)
             

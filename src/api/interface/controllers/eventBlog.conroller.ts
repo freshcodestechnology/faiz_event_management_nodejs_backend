@@ -131,10 +131,9 @@ export const updateBlogController = async (req: Request, res: Response) => {
 
  export const locationWiseBlogDetails = async (req: Request, res: Response) => {
     try {
-        const currentLocation = "";
+        const currentLocation = req.body.location ? req.body.location : "";
         console.log(req.body);
         const { blog_slug } = req.body;
-
 
         if (!blog_slug) {
             return ErrorResponse(res, "Blog slug is required.");
@@ -154,6 +153,27 @@ export const updateBlogController = async (req: Request, res: Response) => {
         return ErrorResponse(res, "An error occurred while fetching the blog.");
     }
 };
+
+export const deleteEventBlogController = async (req: Request, res: Response) => {
+    try {
+        const { blog_ids } = req.body; 
+
+        if (!blog_ids || !Array.isArray(blog_ids) || blog_ids.length === 0) {
+            return ErrorResponse(res, "Please provide at least one valid company ID.");
+        }
+
+        const result = await BLogSchema.deleteMany({ _id: { $in: blog_ids } });
+
+        if (result.deletedCount === 0) {
+            return ErrorResponse(res, "No company found with the provided IDs.");
+        }
+
+        return successResponse(res, `Successfully deleted  company(ies).`,result.deletedCount);
+
+    } catch (error) {
+        return ErrorResponse(res, "An error occurred during event retrieval.");
+    }
+}
 
 
 

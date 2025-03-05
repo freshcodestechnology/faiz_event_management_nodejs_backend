@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { convertToSlug } from "../../helper/helper";
 import BLogSchema from "../schema/eventblog.schema";
+import { env } from "process";
 
 interface storeEventBlog{
     blog_title:string;
@@ -86,8 +87,14 @@ export const eventBlogdList = async (eventBlogData: eventBlogData ,page: number,
             ];
         }
 
-        const users = await BLogSchema.find(searchFilter).skip(skip).limit(size);
+        let users = await BLogSchema.find(searchFilter).skip(skip).limit(size).lean();
         const totalUsers = await BLogSchema.countDocuments(searchFilter);
+        const baseUrl = env.BASE_URL; 
+        users = users.map(blog => ({
+            ...blog, 
+            blog_image : baseUrl +'/'+ blog.blog_image,
+            description: blog.description
+        }));
         const result = {
             currentPage: currentPage,
             totalPages: Math.ceil(totalUsers / size),
@@ -95,8 +102,6 @@ export const eventBlogdList = async (eventBlogData: eventBlogData ,page: number,
             users: users,
         };
         return callback(null, result);
-        
-
         
     } catch (error) {
         return callback(error, null);
@@ -129,9 +134,10 @@ export const eventBlogdLocationList = async (
 
         let blogs = await BLogSchema.find(searchFilter).skip(skip).limit(size).lean();
         const totalBlogs = await BLogSchema.countDocuments(searchFilter);
-
+        const baseUrl = env.BASE_URL; 
         blogs = blogs.map(blog => ({
             ...blog, 
+            blog_image : baseUrl +'/'+ blog.blog_image,
             description: blog.description?.replace(/\{LOCATION\}/g, currentLocation ? currentLocation : '') || ""
         }));
         

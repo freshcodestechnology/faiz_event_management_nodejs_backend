@@ -131,5 +131,30 @@ export const importXlsxData = async (req: Request, res: Response) => {
     }
 };
 
+export const getHomePageCity = async (req: Request, res: Response) => {
+    try {
+        // Fetch cities
+        const cities = await citySchema.find();
+        
+        // Check if the city array is empty
+        if (!cities || cities.length === 0) {
+            return ErrorResponse(res, "No cities found");
+        }
+
+        // Send success response with the city list
+        return successResponse(res, 'Successfully retrieved city list', {
+            cities,
+        });
+        
+    } catch (error) {
+        // Log the error for debugging purposes
+        console.error("Error during city retrieval:", error);
+
+        // Return an error response
+        return ErrorResponse(res, "An error occurred during city retrieval.");
+    }
+};
+
+
 
 

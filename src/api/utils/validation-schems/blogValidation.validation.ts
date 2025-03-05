@@ -10,8 +10,19 @@ export const blogValidation = Joi.object({
     })
 });
 
+
+export const deleteEventBlog = Joi.object({
+    blog_ids: Joi.array().required().messages({
+        "any.required": "blog_ids is required."
+    }),
+});
+
 export const homeBlogdetailsValidation = Joi.object({
     blog_slug: Joi.string().required().messages({
+        "string.blog_slug": "Please enter a valid Blog Slug.",
+        "any.required": "Blog Slug is required."
+    }),
+    location: Joi.string().messages({
         "string.blog_slug": "Please enter a valid Blog Slug.",
         "any.required": "Blog Slug is required."
     })
