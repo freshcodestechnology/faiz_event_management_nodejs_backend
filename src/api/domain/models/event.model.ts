@@ -28,8 +28,10 @@ interface eventData{
     event_type:string,
     event_logo:string,
     event_image:string,
+    event_sponsor:string,
     organizer_name:string,
     organizer_email:string,
+    with_face_scanner:number
     organizer_phone:string,
     sort_des_about_event:string,
     reason_for_visiting:string[],
@@ -80,6 +82,8 @@ export const storeEvent = async (loginUserData:loginUserData,eventData: eventDat
             event_type: eventData.event_type,
             event_logo: eventData.event_logo,
             event_image: eventData.event_image,
+            event_sponsor: eventData.event_sponsor,
+            with_face_scanner : eventData.with_face_scanner,
             show_location_image: eventData.show_location_image,
             getting_show_location: eventData.getting_show_location,
             organizer_name: eventData.organizer_name,
@@ -91,22 +95,22 @@ export const storeEvent = async (loginUserData:loginUserData,eventData: eventDat
         const savedEvent = await newEvent.save();
         const eventId = savedEvent._id;
 
-        const [visitReasonResult, companyActivityResult] = await Promise.all([
-            new Promise((resolve, reject) => {
-                storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                });
-            }),
-            new Promise((resolve, reject) => {
-                storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                });
-            }),
-        ]);
+        // const [visitReasonResult, companyActivityResult] = await Promise.all([
+        //     new Promise((resolve, reject) => {
+        //         storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        //     new Promise((resolve, reject) => {
+        //         storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        // ]);
 
-        return callback(null, { eventId, visitReasonResult, companyActivityResult });
+        return callback(null, { eventId });
     } catch (error) {
         return callback(error, null); 
     }
@@ -138,6 +142,8 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
                 event_type: eventData.event_type,
                 event_logo: eventData.event_logo,
                 event_image: eventData.event_image,
+                event_sponsor: eventData.event_sponsor,
+                with_face_scanner : eventData.with_face_scanner,
                 show_location_image: eventData.show_location_image,
                 organizer_name: eventData.organizer_name,
                 organizer_email: eventData.organizer_email,
@@ -151,28 +157,26 @@ export const updateEvent = async (eventData: eventData, callback: (error: any, r
         if (!updatedEvent) {
             return callback(new Error("Event not found or update failed."), null);
         }
-        const reasonDeleteResult = await reasonSchema.deleteMany({ event_id: eventId });
-        const companyActivityDeleteResult = await companyActivitySchema.deleteMany({ event_id: eventId });
+        // const reasonDeleteResult = await reasonSchema.deleteMany({ event_id: eventId });
+        // const companyActivityDeleteResult = await companyActivitySchema.deleteMany({ event_id: eventId });
 
-        const [visitReasonResult, companyActivityResult] = await Promise.all([
-            new Promise((resolve, reject) => {
-                storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                });
-            }),
-            new Promise((resolve, reject) => {
-                storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result);
-                });
-            }),
-        ]);
+        // const [visitReasonResult, companyActivityResult] = await Promise.all([
+        //     new Promise((resolve, reject) => {
+        //         storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        //     new Promise((resolve, reject) => {
+        //         storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        // ]);
 
         return callback(null, {
-            updatedEvent,
-            visitReasonResult,
-            companyActivityResult,
+            updatedEvent
         });
     } catch (error) {
         return callback(error, null);
@@ -252,6 +256,7 @@ export const adminEventList = async (loginUserData:loginUserData,userData: event
                 event_logo: `${env.BASE_URL}/${event.event_logo}`,
                 event_image: `${env.BASE_URL}/${event.event_image}`,
                 show_location_image : `${env.BASE_URL}/${event.show_location_image}`,
+                event_sponsor:`${env.BASE_URL}/${event.event_sponsor}`,
             };
         });
         const totalUsers = await eventSchema.countDocuments(searchFilter); 
@@ -295,6 +300,10 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
                 event.show_location_image = baseUrl +'/'+ event.show_location_image;
             }
 
+            if (event?.event_sponsor) {
+                event.event_sponsor = baseUrl +'/'+ event.event_sponsor;
+            }
+
             const company_visit = await companyActivitySchema.find({ event_id: event ? event._id : 0 });
             const visitReason = await reasonSchema.find({ event_id: event ? event._id : 0  });
             let show_form = true;
@@ -315,7 +324,9 @@ export const getEventTokenDetails = async(encode_string: string, callback: (erro
             if (event?.show_location_image) {
                 event.show_location_image = baseUrl +'/'+event.show_location_image;
             }
-            
+            if (event?.event_sponsor) {
+                event.event_sponsor = baseUrl +'/'+ event.event_sponsor;
+            }
             const participantUser = await ParticipantSchema.findOne({ _id: EventParticipantData?.participant_user_id });
             
             const participant_qr_details = JSON.stringify({

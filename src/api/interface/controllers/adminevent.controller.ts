@@ -48,6 +48,12 @@ const iv = env.DECRYPT_KEY;
             user.show_location_image = "";
         }
 
+        if (user.event_sponsor) {
+            user.event_sponsor = baseUrl +'/'+ user.event_sponsor;
+        }else{
+            user.event_sponsor = "";
+        }
+
         const company_visit = await reasonSchema.find({ event_id: id });
         const visitReason = await companyActivitySchema.find({ event_id: id });
     
