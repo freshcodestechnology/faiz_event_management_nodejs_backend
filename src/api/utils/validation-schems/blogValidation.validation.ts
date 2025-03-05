@@ -7,7 +7,7 @@ export const blogValidation = Joi.object({
     description: Joi.string().required().messages({
         "string.description": "Please enter a valid description.",
         "any.required": "Description is required."
-    }) 
+    })
 });
 
 export const homeBlogdetailsValidation = Joi.object({

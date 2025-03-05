@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import { Types } from 'mongoose';
+import path from "path"
+import fs from "fs";
 import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import { storeCompany ,companyList ,updateCompany,updateStatus} from "../../domain/models/company.model";
 import BLogSchema from "../../domain/schema/eventblog.schema";
 import { storeBlog , eventBlogdList , updateEventBlog , eventBlogdLocationList} from "../../domain/models/eventBlog.models";
-
+interface FileWithBuffer extends Express.Multer.File {
+buffer: Buffer;
+}
+  
 
 export const getEventBlog = async (req: Request, res: Response) => {
     try {
@@ -31,7 +36,22 @@ export const getEventBlog = async (req: Request, res: Response) => {
 export const storeBlogController = async (req: Request, res: Response) => {
     try {
 
-        console.log(req.body)
+        if (!req.files || req.files.length === 0) {
+           return res.status(400).send("No files uploaded.");
+        }
+
+        const files = req.files as FileWithBuffer[];
+
+        files.forEach((file) => {
+            const field_name = file.fieldname;
+            const fileName = `${Date.now()}-${file.originalname}`;
+
+            const savePath = path.join("uploads", fileName);
+
+            fs.writeFileSync(savePath, file.buffer);
+
+            req.body[field_name] = savePath;
+        });
 
         storeBlog(req.body, (error: any, result: any) => {
             if (error) {
@@ -61,6 +81,19 @@ export const eventBlogDetailsController = async (req: Request, res: Response) =>
 
 export const updateBlogController = async (req: Request, res: Response) => {
     try {
+        const files = req.files as FileWithBuffer[];
+
+        files.forEach((file) => {
+            const field_name = file.fieldname;
+            const fileName = `${Date.now()}-${file.originalname}`;
+
+            const savePath = path.join("uploads", fileName);
+
+            fs.writeFileSync(savePath, file.buffer);
+
+            req.body[field_name] = savePath;
+        });
+        
         updateEventBlog(req.body, (error:any, result:any) => {
             if (error) {
                 return ErrorResponse(res, "An unexpected error occurred.")
