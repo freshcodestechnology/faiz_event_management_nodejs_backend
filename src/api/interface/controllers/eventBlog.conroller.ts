@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Types } from 'mongoose';
 import path from "path"
 import fs from "fs";
+import { env } from "process";
 import { successResponse ,ErrorResponse } from "../../helper/apiResponse";
 import { storeCompany ,companyList ,updateCompany,updateStatus} from "../../domain/models/company.model";
 import BLogSchema from "../../domain/schema/eventblog.schema";
@@ -73,6 +74,10 @@ export const eventBlogDetailsController = async (req: Request, res: Response) =>
         if (!blog) {
             return ErrorResponse(res, "Blog not found")
         }
+        const baseUrl = env.BASE_URL; 
+        if(blog.blog_image){
+            blog.blog_image = baseUrl +'/'+ blog.blog_image
+        }
         return successResponse(res, 'Get Blog List',blog)
     } catch (error) {
         return  ErrorResponse(res,'An error occurred during get blog.')
@@ -143,6 +148,11 @@ export const updateBlogController = async (req: Request, res: Response) => {
         
         if (!blog) {
             return ErrorResponse(res, "Blog not found");
+        }
+
+        const baseUrl = env.BASE_URL; 
+        if(blog.blog_image){
+            blog.blog_image = baseUrl +'/'+ blog.blog_image
         }
 
         blog.description = blog.description?.replace(/\{LOCATION\}/g, currentLocation ? currentLocation : '') || ""
