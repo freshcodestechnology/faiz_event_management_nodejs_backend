@@ -42,6 +42,12 @@ interface eventData{
     company_id?:string,
 }
 
+interface ExtraEventData{
+    company_activity:string[],
+    event_id?: any,
+    sort_des_about_event:string,
+    reason_for_visiting:string[],
+}
 interface eventVisitReason{
     event_id : any;
     reason : string[];
@@ -452,60 +458,40 @@ export const getAllEventParticipantUserListModal = async (
     }
   };
 
-  export const storeEventExtraData = async (loginUserData:loginUserData,eventData: eventData, callback: (error: any, result: any) => void) => {
+export const updateEventExtraDetails = async (ExtraEventData: ExtraEventData, callback: (error: any, result: any) => void) => {
     try {
-        const storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                cb(null, './uploads');
+       
+        const eventId = ExtraEventData.event_id
+        console.log(eventId);
+        const updatedEvent = await eventSchema.findByIdAndUpdate(
+            eventId,
+            {
+                sort_des_about_event: ExtraEventData.sort_des_about_event,
             },
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                cb(null, uniqueSuffix + path.extname(file.originalname));
-            },
-        });
-        console.log(loginUserData.company_id);
-        const newEvent = new eventSchema({
-            company_id:loginUserData.company_id,
-            company_name: eventData.company_name,
-            event_title: eventData.event_title,
-            event_slug: convertToSlug(eventData.event_slug),
-            event_description: eventData.event_description,
-            start_date: eventData.start_date,
-            end_date: eventData.end_date,
-            google_map_url: eventData.google_map_url,
-            address: eventData.address,
-            event_type: eventData.event_type,
-            event_logo: eventData.event_logo,
-            event_image: eventData.event_image,
-            event_sponsor: eventData.event_sponsor,
-            with_face_scanner : eventData.with_face_scanner,
-            show_location_image: eventData.show_location_image,
-            getting_show_location: eventData.getting_show_location,
-            organizer_name: eventData.organizer_name,
-            organizer_email: eventData.organizer_email,
-            organizer_phone: eventData.organizer_phone,
-            sort_des_about_event: eventData.sort_des_about_event,
-        });
+            { new: true } 
+        );
 
-        const savedEvent = await newEvent.save();
-        const eventId = savedEvent._id;
-
-        // const [visitReasonResult, companyActivityResult] = await Promise.all([
-        //     new Promise((resolve, reject) => {
-        //         storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
-        //             if (error) return reject(error);
-        //             resolve(result);
-        //         });
-        //     }),
-        //     new Promise((resolve, reject) => {
-        //         storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
-        //             if (error) return reject(error);
-        //             resolve(result);
-        //         });
-        //     }),
-        // ]);
-
-        return callback(null, { eventId });
+        if (!updatedEvent) {
+            return callback(new Error("Event not found or update failed."), null);
+        }
+        const reasonDeleteResult = await reasonSchema.deleteMany({ event_id: eventId });
+        const companyActivityDeleteResult = await companyActivitySchema.deleteMany({ event_id: eventId });
+        const [visitReasonResult, companyActivityResult] = await Promise.all([
+            new Promise((resolve, reject) => {
+                storeEventVisitReason({ event_id: eventId, reason: ExtraEventData.reason_for_visiting }, (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                });
+            }),
+            new Promise((resolve, reject) => {
+                storeCompanyActivity({ event_id: eventId, reason: ExtraEventData.company_activity }, (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                });
+            }),
+        ]);
+        return callback(null, { ExtraEventData });
+        
     } catch (error) {
         return callback(error, null); 
     }

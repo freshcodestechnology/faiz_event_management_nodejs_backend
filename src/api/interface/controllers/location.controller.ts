@@ -134,9 +134,22 @@ export const importXlsxData = async (req: Request, res: Response) => {
 export const getHomePageCity = async (req: Request, res: Response) => {
     try {
         // Fetch cities
-        const cities = await citySchema.find();
+        const countryId = "67610db09c6d81094c056ee4"; // Replace with actual India country _id
+
+        // Fetch states where country_id matches India
+        const states = await stateSchema.find({ country_id: countryId });
+
+        // Check if no states were fo   und
+        if (!states || states.length === 0) {
+            return ErrorResponse(res, "No Indian states found");
+        }
+
+        // Extract state IDs from the fetched states
+        const stateIds = states.map(state => state._id);
+        // console.log(stateIds)
+        // Fetch cities where state_id is in the extracted stateIds
+        const cities = await citySchema.find({ state_id: { $in: stateIds } });
         
-        // Check if the city array is empty
         if (!cities || cities.length === 0) {
             return ErrorResponse(res, "No cities found");
         }

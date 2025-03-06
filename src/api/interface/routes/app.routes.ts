@@ -1,7 +1,7 @@
 import express from "express";
 import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList,getAllParticipantUserList,UpdateExtraEventDetails} from "../../interface/controllers/adminevent.controller";
+import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList,getAllParticipantUserList,UpdateExtraEventDetails,GetExtraEventDetails} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity,importXlsxData,getHomePageCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
@@ -13,7 +13,7 @@ import { storeEventParticipantUser ,getUserDetailsUsingEmail,generateEventPdf,ge
 import { getAdminUser,storeAdminUser,getSingleAdminUser,updateAdminUser,checkEmailUser,deleteAdminUser,forgetPassword,setPassword,updateUserStatus,changePassword} from "../../interface/controllers/adminuser.controller";
 import { registerUserSchema,loginUserSchema,updateUserSchema,forgetPasswordSchema,setPasswordSchema,updateStatusUserSchema,deleteUsersSchema,changePasswordSchema,scannerPageLoginUserSchema} from "../../utils/validation-schems/user.validation";
 import { EventParticipantUsers } from "../../utils/validation-schems/event_participant_users.validation";
-import { adminEventSchema , adminUpdateEventSchema,deleteEventSchema} from "../../utils/validation-schems/adminevent.validation";
+import { adminEventSchema , adminUpdateEventSchema,deleteEventSchema,extraEventDetails,updateExtraEventDetails} from "../../utils/validation-schems/adminevent.validation";
 import { uploadImagesFile } from "../../helper/helper";
 import { settingSchema } from "../../utils/validation-schems/setting.validation";
 import { updateCompanySchema , registerCompanySchema,deleteCompanySchema ,updateStatusCompanySchema} from "../../utils/validation-schems/company.validation";
@@ -62,7 +62,9 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.post("/delete-event", protectedRoute,validateRequest(deleteEventSchema), deleteAdminEvent)
             route.get("/get-paticipant-user-list/:token",protectedRoute,getParticipantUserList);
             route.get("/get-all-paticipant-user-list",protectedRoute,getAllParticipantUserList);
-            route.get("/update-extra-event-details",protectedRoute,UpdateExtraEventDetails);
+            route.post("/update-extra-event-details",protectedRoute,validateRequest(updateExtraEventDetails),UpdateExtraEventDetails);
+            route.post("/get-extra-event-details",protectedRoute,validateRequest(extraEventDetails),GetExtraEventDetails);
+            
 
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);

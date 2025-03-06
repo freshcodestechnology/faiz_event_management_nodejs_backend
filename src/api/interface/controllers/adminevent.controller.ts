@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { loggerMsg } from "../../lib/logger";
 import { successCreated, successResponse ,ErrorResponse } from "../../helper/apiResponse";
-import { storeEvent,updateEvent,getEventTokenDetails ,adminEventList,getEventParticipantUserListModal,getAllEventParticipantUserListModal} from "../../domain/models/event.model";
+import { storeEvent,updateEvent,getEventTokenDetails ,adminEventList,getEventParticipantUserListModal,getAllEventParticipantUserListModal,updateEventExtraDetails} from "../../domain/models/event.model";
 import {v4 as uuidv4} from "uuid"
 import multer from "multer"
 import path from "path"
@@ -350,11 +350,63 @@ export const getAllParticipantUserList = async (req: Request, res: Response) => 
 
 export const UpdateExtraEventDetails = async (req: Request, res: Response) => {
     try {
-
+            
+        console.log(req.body)
+        const { creason_for_visiting,company_activity,sort_des_about_event,event_id} = req.body;
+        
+        updateEventExtraDetails(req.body, (error:any, result:any) => {
+            if (error) {
+                return res.status(500).json({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: error instanceof Error ? error.message : "An unexpected error occurred."
+                });
+            }
+            return successCreated(res, result)
+        });
     } catch (error) {
-        return ErrorResponse(res, 'An internal server error occurred.');
+        return res.status(500).json({
+            status: "error",
+            message: "An error occurred during user registration.",
+        });
     }
 }
+
+export const GetExtraEventDetails = async (req: Request, res: Response) => {
+    try {
+        console.log(req.body);
+        const { id } = req.body;
+        console.log(id);
+
+        if (!id) {
+            return ErrorResponse(res, "Event ID is required");
+        }
+
+        const event = await eventSchema.findById(id).select('+event_logo +event_image');
+
+        if (!event) {
+            return ErrorResponse(res, "Event not found");
+        }
+
+        const company_visit = await reasonSchema.find({ event_id: event._id });
+        const visitReason = await companyActivitySchema.find({ event_id: event._id });
+
+        const event_data = {
+            event_title: event.event_title || "",
+            sort_des_about_event : event.sort_des_about_event || "",
+            event_description: event.event_description || "",
+            company_visit : company_visit,
+            visitReason : visitReason
+        };
+
+        return successResponse(res, "Success", event_data);
+    } catch (error) {
+        console.error(error); 
+        return ErrorResponse(res, 'An internal server error occurred.');
+    }
+};
+
+
+
 
 
 

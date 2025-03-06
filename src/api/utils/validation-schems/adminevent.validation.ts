@@ -200,6 +200,29 @@ export const deleteEventSchema = Joi.object({
     }),
 });
 
+export const extraEventDetails = Joi.object({
+    id: Joi.string().required().messages({
+        "any.required": "id is required."
+    }),
+});
+
+export const updateExtraEventDetails = Joi.object({
+    event_id: Joi.string().required().messages({
+        "any.required": "event_id is required."
+    }),
+    company_activity: Joi.array().messages({
+        "any.required": "company_activity is required."
+    }),
+    reason_for_visiting: Joi.array().messages({
+        "any.required": "reason_for_visiting is required."
+    }),
+    sort_des_about_event: Joi.string().required().messages({
+        "any.required": "sort_des_about_event is required."
+    }),
+});
+
+
+
 
 
 
