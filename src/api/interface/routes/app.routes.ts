@@ -66,6 +66,7 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.post("/get-extra-event-details",protectedRoute,validateRequest(extraEventDetails),GetExtraEventDetails);
             
 
+            
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);
             route.get("/get-event-details-using-token/:token",getTokeneventDetails);
