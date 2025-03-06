@@ -271,80 +271,82 @@ export const storeEventParticipantUser = async (req: Request, res: Response) => 
         //   console.log("zxczcxz")
         var uploadedImage = "";
         
-
-        try {
-            const command = new CreateCollectionCommand({ CollectionId: FACE_COLLECTION_ID });
-            const response = await rekognition.send(command);
-    
-            // console.log("Collection Created:", response);
-        } catch (error) {
-            // console.error("Error creating collection:", error);
-        }
-        try {
-            // Take only the first uploaded image
-            const file = (req.files as Express.Multer.File[])[0];
-            const allowedMimeTypes = ['image/png', 'image/jpeg'];
-            if (!allowedMimeTypes.includes(file.mimetype)) {
-                return ErrorResponse(res, "Only PNG and JPG files are allowed");
+        const file = (req.files as Express.Multer.File[])[0];
+        if(file){
+            try {
+                const command = new CreateCollectionCommand({ CollectionId: FACE_COLLECTION_ID });
+                const response = await rekognition.send(command);
+        
+                // console.log("Collection Created:", response);
+            } catch (error) {
+                // console.error("Error creating collection:", error);
             }
-    
-            const maxSize = 5 * 1024 * 1024; 
-            if (file.size > maxSize) {
-                return ErrorResponse(res, "File size must be less than 5MB");
-            }
-            // const imageBuffer = file.buffer;
-            const imageBuffer = await sharp(file.buffer)
-            .resize(100) // Resize to max 300px width (adjust as needed)
-            .jpeg({ quality: 100 }) // Convert to JPEG with 60% quality
-            .toBuffer();
-            const fileKey = `${uuidv4()}.jpg`;
+            try {
+                // Take only the first uploaded image
             
-            // Upload image to S3
-            await ss3.send(new PutObjectCommand({
-                Bucket: AWS_BUCKET_NAME,
-                Key: fileKey,
-                Body: imageBuffer,
-                ContentType: file.mimetype
-            }));
-    
-            // Index face in Rekognition
-            const indexCommand = new IndexFacesCommand({
-                CollectionId: FACE_COLLECTION_ID,
-                Image: { Bytes: imageBuffer },
-                ExternalImageId: fileKey,
-                DetectionAttributes: ["DEFAULT"]
-            });
-    
-            const indexResult = await rekognition.send(indexCommand);
-    
-            // Check if a valid face was detected
-            if (!indexResult.FaceRecords || indexResult.FaceRecords.length === 0) {
-                return res.status(400).json({ error: "No valid face detected in the image" });
+                const allowedMimeTypes = ['image/png', 'image/jpeg'];
+                if (!allowedMimeTypes.includes(file.mimetype)) {
+                    return ErrorResponse(res, "Only PNG and JPG files are allowed");
+                }
+        
+                const maxSize = 5 * 1024 * 1024; 
+                if (file.size > maxSize) {
+                    return ErrorResponse(res, "File size must be less than 5MB");
+                }
+                // const imageBuffer = file.buffer;
+                const imageBuffer = await sharp(file.buffer)
+                .resize(100) // Resize to max 300px width (adjust as needed)
+                .jpeg({ quality: 100 }) // Convert to JPEG with 60% quality
+                .toBuffer();
+                const fileKey = `${uuidv4()}.jpg`;
+                
+                // Upload image to S3
+                await ss3.send(new PutObjectCommand({
+                    Bucket: AWS_BUCKET_NAME,
+                    Key: fileKey,
+                    Body: imageBuffer,
+                    ContentType: file.mimetype
+                }));
+        
+                // Index face in Rekognition
+                const indexCommand = new IndexFacesCommand({
+                    CollectionId: FACE_COLLECTION_ID,
+                    Image: { Bytes: imageBuffer },
+                    ExternalImageId: fileKey,
+                    DetectionAttributes: ["DEFAULT"]
+                });
+        
+                const indexResult = await rekognition.send(indexCommand);
+        
+                // Check if a valid face was detected
+                if (!indexResult.FaceRecords || indexResult.FaceRecords.length === 0) {
+                    return res.status(400).json({ error: "No valid face detected in the image" });
+                }
+        
+                // Store face ID and image URL
+                const faceId = indexResult.FaceRecords[0].Face?.FaceId;
+                uploadedImage = fileKey;
+                // console.log(__dirname);
+                // const savePath = path.join(__dirname, "../../../../uploads/participants");
+
+                // if (!fs.existsSync(savePath)) {
+                //     fs.mkdirSync(savePath, { recursive: true });
+                // }
+
+            const savePath = path.join("uploads/participants", fileKey); 
+                        
+                fs.writeFileSync(savePath, file.buffer); 
+        
+                // Attach image URL and face ID to request body
+                req.body.image_url = fileKey;
+                req.body.face_id = faceId;
+                // console.log("fileKeyfileKeyfileKeyfileKey",fileKey)
+                // console.log("faceIdfaceIdfaceIdfaceIdfaceIdfaceId",faceId)
+        
+            } catch (error) {
+                console.error("Error processing image:", error);
+                return res.status(500).json({ error: "Image upload and face recognition failed" });
             }
-    
-            // Store face ID and image URL
-            const faceId = indexResult.FaceRecords[0].Face?.FaceId;
-            uploadedImage = fileKey;
-            // console.log(__dirname);
-            // const savePath = path.join(__dirname, "../../../../uploads/participants");
-
-            // if (!fs.existsSync(savePath)) {
-            //     fs.mkdirSync(savePath, { recursive: true });
-            // }
-
-           const savePath = path.join("uploads/participants", fileKey); 
-                       
-            fs.writeFileSync(savePath, file.buffer); 
-    
-            // Attach image URL and face ID to request body
-            req.body.image_url = fileKey;
-            req.body.face_id = faceId;
-            // console.log("fileKeyfileKeyfileKeyfileKey",fileKey)
-            // console.log("faceIdfaceIdfaceIdfaceIdfaceIdfaceId",faceId)
-    
-        } catch (error) {
-            console.error("Error processing image:", error);
-            return res.status(500).json({ error: "Image upload and face recognition failed" });
         }
 
         // console.log(uploadedImage);
