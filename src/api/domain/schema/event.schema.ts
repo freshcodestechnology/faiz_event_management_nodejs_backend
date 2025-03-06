@@ -15,7 +15,7 @@ export interface IEvent extends Document {
     event_logo?: string;
     event_sponsor?: string;
     event_image?: string;
-    with_face_scanner: number;
+    with_face_scanner: string;
     organizer_name: string;
     organizer_email: string;
     organizer_phone: string;
@@ -44,7 +44,7 @@ const eventSchema: Schema = new Schema<IEvent>({
     organizer_email: { type: String, required: true },
     organizer_phone: { type: String, required: true },
     sort_des_about_event: { type: String, required: false },
-    with_face_scanner : { type: Number, required: true ,default:0},
+    with_face_scanner : { type: String, required: true ,default:'0'},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
