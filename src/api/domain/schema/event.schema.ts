@@ -43,7 +43,7 @@ const eventSchema: Schema = new Schema<IEvent>({
     organizer_name: { type: String, required: true },
     organizer_email: { type: String, required: true },
     organizer_phone: { type: String, required: true },
-    sort_des_about_event: { type: String, required: true },
+    sort_des_about_event: { type: String, required: false },
     with_face_scanner : { type: Number, required: true ,default:0},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

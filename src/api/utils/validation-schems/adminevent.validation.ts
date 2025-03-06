@@ -92,10 +92,6 @@ export const adminEventSchema = Joi.object({
         "any.required": "Organizer Phone is required.",
         "string.pattern.base": "Organizer Phone must be a valid phone number with 10-15 digits.",
         "string.base": "Organizer Phone must be a string."
-    }),
-    sort_des_about_event: Joi.string().required().messages({
-        "any.required": "Short Description About Event is required.",
-        "string.base": "Short Description About Event must be a string."
     })
 });
 
@@ -175,10 +171,6 @@ export const adminUpdateEventSchema = Joi.object({
         "any.required": "Organizer Phone is required.",
         "string.pattern.base": "Organizer Phone must be a valid phone number with 10-15 digits.",
         "string.base": "Organizer Phone must be a string."
-    }),
-    sort_des_about_event: Joi.string().required().messages({
-        "any.required": "Short Description About Event is required.",
-        "string.base": "Short Description About Event must be a string."
     }),
     with_face_scanner:Joi.number().required().messages({
         "any.required": "With face scanner About Event is required.",
