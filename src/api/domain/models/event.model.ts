@@ -381,6 +381,138 @@ export const getEventParticipantUserListModal = async(slug: string, callback: (e
     }
 }
 
+export const getAllEventParticipantUserListModal = async (
+    loginUserData :any,
+    filters:any,
+    pagination:any,
+    event_id:any,
+    callback: (error: any, result: any) => void) => {
+    try {
+      const { page = 1, limit = 10 } = pagination;
+      const skip = (page - 1) * limit;
+  
+      // Build event filter
+      let eventFilter: any = { company_id: loginUserData.company_id };
+  
+      if (event_id) {
+        eventFilter["_id"] = event_id;
+      }
+  
+      // Fetch events with pagination
+      const events = await eventSchema
+        .find(eventFilter)
+        .select("event_logo event_image show_location_image event_title")
+        .skip(skip)
+        .limit(limit);
+  
+      if (!events.length) {
+        return callback({ message: "No events found" }, null);
+      }
+  
+      let allParticipants: any[] = [];
+  
+      for (const event of events) {
+        const eventParticipants = await EventParticipantSchema.find({
+          event_id: event._id,
+        });
+  
+        if (eventParticipants.length) {
+          const participantUserIds = eventParticipants.map(
+            (participant) => participant.participant_user_id
+          );
+  
+          let participantFilter: any = {
+            _id: { $in: participantUserIds },
+            ...(filters && {
+              $or: [
+                { first_name: { $regex: filters, $options: "i" } },
+                { last_name: { $regex: filters, $options: "i" } },
+                { email: { $regex: filters, $options: "i" } },
+              ],
+            }),
+          };
+  
+          const participants = await ParticipantSchema.find(participantFilter)
+            .skip(skip)
+            .limit(limit);
+  
+          const participantsWithEvent = participants.map((participant) => ({
+            ...participant.toObject(),
+            event_title: event.event_title,
+            event_id: event._id,
+          }));
+  
+          allParticipants = allParticipants.concat(participantsWithEvent);
+        }
+      }
+  
+      return callback(null, { participants: allParticipants, page, limit });
+    } catch (error) {
+      return callback({ message: "An error occurred", error }, null);
+    }
+  };
+
+  export const storeEventExtraData = async (loginUserData:loginUserData,eventData: eventData, callback: (error: any, result: any) => void) => {
+    try {
+        const storage = multer.diskStorage({
+            destination: (req, file, cb) => {
+                cb(null, './uploads');
+            },
+            filename: (req, file, cb) => {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                cb(null, uniqueSuffix + path.extname(file.originalname));
+            },
+        });
+        console.log(loginUserData.company_id);
+        const newEvent = new eventSchema({
+            company_id:loginUserData.company_id,
+            company_name: eventData.company_name,
+            event_title: eventData.event_title,
+            event_slug: convertToSlug(eventData.event_slug),
+            event_description: eventData.event_description,
+            start_date: eventData.start_date,
+            end_date: eventData.end_date,
+            google_map_url: eventData.google_map_url,
+            address: eventData.address,
+            event_type: eventData.event_type,
+            event_logo: eventData.event_logo,
+            event_image: eventData.event_image,
+            event_sponsor: eventData.event_sponsor,
+            with_face_scanner : eventData.with_face_scanner,
+            show_location_image: eventData.show_location_image,
+            getting_show_location: eventData.getting_show_location,
+            organizer_name: eventData.organizer_name,
+            organizer_email: eventData.organizer_email,
+            organizer_phone: eventData.organizer_phone,
+            sort_des_about_event: eventData.sort_des_about_event,
+        });
+
+        const savedEvent = await newEvent.save();
+        const eventId = savedEvent._id;
+
+        // const [visitReasonResult, companyActivityResult] = await Promise.all([
+        //     new Promise((resolve, reject) => {
+        //         storeEventVisitReason({ event_id: eventId, reason: eventData.reason_for_visiting }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        //     new Promise((resolve, reject) => {
+        //         storeCompanyActivity({ event_id: eventId, reason: eventData.company_activity }, (error, result) => {
+        //             if (error) return reject(error);
+        //             resolve(result);
+        //         });
+        //     }),
+        // ]);
+
+        return callback(null, { eventId });
+    } catch (error) {
+        return callback(error, null); 
+    }
+};
+  
+
+
 
 
 

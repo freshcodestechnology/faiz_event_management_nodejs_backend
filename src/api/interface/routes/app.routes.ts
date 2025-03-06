@@ -1,7 +1,7 @@
 import express from "express";
 import { protectedRoute} from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList} from "../../interface/controllers/adminevent.controller";
+import { storeAdminEvent,updateAdminEvent,getAdminEventDetails  ,getAdminEventList,deleteAdminEvent,generateUniqueURL,generateRegistrationURL,getTokeneventDetails,getParticipantUserList,getAllParticipantUserList,UpdateExtraEventDetails} from "../../interface/controllers/adminevent.controller";
 import { registerUser , loginUser} from "../../interface/controllers/auth.controller";
 import { getCountry,getState,getCity,importXlsxData,getHomePageCity } from "../../interface/controllers/location.controller";
 import { getSetting , updateSetting } from "../../interface/controllers/setting.controller";
@@ -61,6 +61,8 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.get("/get-event-list",protectedRoute,getAdminEventList);
             route.post("/delete-event", protectedRoute,validateRequest(deleteEventSchema), deleteAdminEvent)
             route.get("/get-paticipant-user-list/:token",protectedRoute,getParticipantUserList);
+            route.get("/get-all-paticipant-user-list",protectedRoute,getAllParticipantUserList);
+            route.get("/update-extra-event-details",protectedRoute,UpdateExtraEventDetails);
 
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);

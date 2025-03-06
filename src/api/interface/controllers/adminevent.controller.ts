@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { loggerMsg } from "../../lib/logger";
 import { successCreated, successResponse ,ErrorResponse } from "../../helper/apiResponse";
-import { storeEvent,updateEvent,getEventTokenDetails ,adminEventList,getEventParticipantUserListModal} from "../../domain/models/event.model";
+import { storeEvent,updateEvent,getEventTokenDetails ,adminEventList,getEventParticipantUserListModal,getAllEventParticipantUserListModal} from "../../domain/models/event.model";
 import {v4 as uuidv4} from "uuid"
 import multer from "multer"
 import path from "path"
@@ -22,7 +22,7 @@ const upload = multer();
 const key = env.ENCRYPT_KEY;
 const iv = env.DECRYPT_KEY; 
 
-  export const getAdminEventDetails = async (req: Request, res: Response) => {
+export const getAdminEventDetails = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
     
@@ -67,8 +67,6 @@ const iv = env.DECRYPT_KEY;
         return ErrorResponse(res, 'An error occurred during event retrieval.');
     }
 };
-
-
 
 export const deleteAdminEvent = async (req: Request, res: Response) => {
     try {
@@ -327,6 +325,39 @@ export const generateRegistrationURL = async (req: Request, res: Response) => {
         return ErrorResponse(res, 'An internal server error occurred.');
     }
 }
+
+export const getAllParticipantUserList = async (req: Request, res: Response) => {
+    try {
+        const { search = "", page = "1", limit = "10",event_id = "" } = req.query;
+
+        const filters = search.toString();
+        const pagination = {
+            page: parseInt(page as string, 10),
+            limit: parseInt(limit as string, 10),
+        };
+
+        getAllEventParticipantUserListModal(req.user, filters,pagination ,event_id, (error: any, result: any) => {
+            if (error) {
+                return ErrorResponse(res, error.message || "Invalid or expired token.");
+            }
+
+            return successResponse(res, "Success", result);
+        });
+    } catch (error) {
+        return ErrorResponse(res, "An internal server error occurred.");
+    }
+};
+
+export const UpdateExtraEventDetails = async (req: Request, res: Response) => {
+    try {
+
+    } catch (error) {
+        return ErrorResponse(res, 'An internal server error occurred.');
+    }
+}
+
+
+
 
 
 
