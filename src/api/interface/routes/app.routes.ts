@@ -22,6 +22,8 @@ import { addScannerMachineSchema,updateScannerMachineSchema,deleteScannerMachine
 import { scannerData ,scannerGetData} from "../../utils/validation-schems/scannerData.validation";
 import { blogValidation,updateBlogValidation,homeBlogdetailsValidation,deleteEventBlog } from "../../utils/validation-schems/blogValidation.validation";
 import { getEventBlog,storeBlogController,eventBlogDetailsController, updateBlogController,locationWiseEventList,locationWiseBlogDetails,deleteEventBlogController} from "../../interface/controllers/eventBlog.conroller";
+import { storeAdminCompanyController,getAdminCompanyList,getAdminCompanyDetails,updateAdminCompanyController,deleteAdminCompanyController } from "../../interface/controllers/adminCompany.controller";
+import { adminCompanySchema,updateAdminCompanySchema,deleteAdminCompanySchema } from "../../utils/validation-schems/adminCompanySchema.validation";
 import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/validation-schems/scannerPage.validation";
 
 
@@ -36,6 +38,15 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             
             //auth urls
 
+            //Admin company module
+
+            route.post('/store-admin-company',protectedRoute,validateRequest(adminCompanySchema),storeAdminCompanyController);
+            route.get('/get-admin-company-list',protectedRoute,getAdminCompanyList);
+            route.get('/get-admin-company-details/:id',protectedRoute,getAdminCompanyDetails);
+            route.post('/update-admin-company',protectedRoute,validateRequest(updateAdminCompanySchema),updateAdminCompanyController);
+            route.post('/delete-admin-company',protectedRoute,validateRequest(deleteAdminCompanySchema),deleteAdminCompanyController);
+            
+            
             route.post("/register",validateRequest(registerUserSchema),registerUser);
             route.post("/login",validateRequest(loginUserSchema),loginUser);
             route.post("/logout",validateRequest(loginUserSchema),loginUser);
