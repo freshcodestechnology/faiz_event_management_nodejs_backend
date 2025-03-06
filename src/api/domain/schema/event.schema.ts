@@ -15,7 +15,7 @@ export interface IEvent extends Document {
     event_logo?: string;
     event_sponsor?: string;
     event_image?: string;
-    with_face_scanner: string;
+    with_face_scanner: any;
     organizer_name: string;
     organizer_email: string;
     organizer_phone: string;

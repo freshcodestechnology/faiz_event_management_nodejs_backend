@@ -81,7 +81,7 @@ export const adminEventSchema = Joi.object({
         "string.email": "Organizer Email must be a valid email address.",
         "string.base": "Organizer Email must be a string."
     }),
-    with_face_scanner:Joi.string().required().messages({
+    with_face_scanner:Joi.any().required().messages({
         "any.required": "With face scanner About Event is required.",
         "string.base": "With face scanner About Event must be a integer."
     }),
@@ -172,7 +172,7 @@ export const adminUpdateEventSchema = Joi.object({
         "string.pattern.base": "Organizer Phone must be a valid phone number with 10-15 digits.",
         "string.base": "Organizer Phone must be a string."
     }),
-    with_face_scanner:Joi.string().required().messages({
+    with_face_scanner:Joi.any().required().messages({
         "any.required": "With face scanner About Event is required.",
         "string.base": "With face scanner About Event must be a integer."
     }),
