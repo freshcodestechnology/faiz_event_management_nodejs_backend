@@ -387,8 +387,8 @@ export const GetExtraEventDetails = async (req: Request, res: Response) => {
             return ErrorResponse(res, "Event not found");
         }
 
-        const company_visit = await reasonSchema.find({ event_id: event._id });
-        const visitReason = await companyActivitySchema.find({ event_id: event._id });
+        const company_visit = await companyActivitySchema.find({ event_id: event._id });
+        const visitReason = await reasonSchema.find({ event_id: event._id });
 
         const event_data = {
             event_title: event.event_title || "",
