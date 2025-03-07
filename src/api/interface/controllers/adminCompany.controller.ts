@@ -16,8 +16,22 @@ const upload = multer();
 
 export const storeAdminCompanyController = async (req: Request, res: Response) => {
     try {
+        const files = req.files as FileWithBuffer[];
+        
+        files.forEach((file) => {
+            const field_name = file.fieldname;
+            const fileName = `${Date.now()}-${file.originalname}`;
+
+            const savePath = path.join("uploads", fileName);
+
+            fs.writeFileSync(savePath, file.buffer);
+
+            req.body[field_name] = savePath;
+        });
+
         console.log(req.body)
         console.log(req.user)
+        // return false;
         storeAdminCompany(req.user,req.body, (error: any, result: any) => {
             if (error) {
                 return ErrorResponse(res, error.message);
@@ -63,11 +77,11 @@ export const getAdminCompanyDetails = async (req: Request, res: Response) => {
             return ErrorResponse(res, "User not found");
         }
     
-        // const baseUrl = env.BASE_URL; 
+        const baseUrl = env.BASE_URL; 
     
-        // if (user.event_logo) {
-        //     user.event_logo = baseUrl +'/'+ user.event_logo;
-        // }
+        if (company_details.company_document) {
+            company_details.company_document = baseUrl +'/'+ company_details.company_document;
+        }
     
         // if (user.event_image) {
         //     user.event_image = baseUrl +'/'+ user.event_image;
@@ -99,6 +113,19 @@ export const getAdminCompanyDetails = async (req: Request, res: Response) => {
 
 export const updateAdminCompanyController = async (req: Request, res: Response) => {
     try {
+        const files = req.files as FileWithBuffer[];
+        
+        files.forEach((file) => {
+            const field_name = file.fieldname;
+            const fileName = `${Date.now()}-${file.originalname}`;
+
+            const savePath = path.join("uploads", fileName);
+
+            fs.writeFileSync(savePath, file.buffer);
+
+            req.body[field_name] = savePath;
+        });
+
         console.log(req.body)
         console.log(req.user)
         updateAdminCompany(req.user,req.body, (error: any, result: any) => {

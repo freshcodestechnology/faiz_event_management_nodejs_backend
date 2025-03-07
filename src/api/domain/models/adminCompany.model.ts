@@ -47,7 +47,7 @@ export const storeAdminCompany = async (loginUser:loginUserData,storeAdminCompan
             pincode:storeAdminCompanyData.pincode,
             country:storeAdminCompanyData.country,
             city:storeAdminCompanyData.city,
-            company_document:"asdasd",
+            company_document:storeAdminCompanyData.company_document,
             company_website:storeAdminCompanyData.company_website,
         });
 
@@ -83,21 +83,18 @@ export const adminCompanyList = async (loginUserData:loginUserData,userData: sto
 
         const events = await AdminCompanySchema.find(searchFilter).skip(skip).limit(size);
         
-        // const eventswithimage = events.map(event => {
-        //     return {
-        //         ...event.toObject(), 
-        //         event_logo: `${env.BASE_URL}/${event.event_logo}`,
-        //         event_image: `${env.BASE_URL}/${event.event_image}`,
-        //         show_location_image : `${env.BASE_URL}/${event.show_location_image}`,
-        //         event_sponsor:`${env.BASE_URL}/${event.event_sponsor}`,
-        //     };
-        // });
+        const eventswithimage = events.map(event => {
+            return {
+                ...event.toObject(), 
+                company_document: `${env.BASE_URL}/${event.company_document}`,
+            };
+        });
         const totalUsers = await AdminCompanySchema.countDocuments(searchFilter); 
         const result = {
             currentPage: currentPage,
             totalPages: Math.ceil(totalUsers / size),
             totalUsers: totalUsers,
-            event: events,
+            companies: eventswithimage,
         };
 
         return callback(null, result);
@@ -127,7 +124,7 @@ export const updateAdminCompany = async (loginUser: loginUserData, storeAdminCom
                 pincode: storeAdminCompanyData.pincode,
                 country: storeAdminCompanyData.country,
                 city: storeAdminCompanyData.city,
-                company_document: "asdasd",  
+                company_document: storeAdminCompanyData.company_document,  
                 company_website: storeAdminCompanyData.company_website,
             },
             { new: true }  
