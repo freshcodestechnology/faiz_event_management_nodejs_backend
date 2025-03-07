@@ -17,7 +17,7 @@ const upload = multer();
 export const storeAdminCompanyController = async (req: Request, res: Response) => {
     try {
         const files = req.files as FileWithBuffer[];
-        
+        console.log(files);
         files.forEach((file) => {
             const field_name = file.fieldname;
             const fileName = `${Date.now()}-${file.originalname}`;

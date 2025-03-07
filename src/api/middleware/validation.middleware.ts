@@ -29,6 +29,7 @@ export const validateRequest = (schema: ObjectSchema) => {
     return (req: Request, res: Response, next: NextFunction) => {
         upload.any()(req, res, (err) => {
             if (err) {
+                console.log(err)
                 return res.status(500).json({
                     status: "error",
                     code: "MULTER_ERROR",

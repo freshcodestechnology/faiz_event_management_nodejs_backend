@@ -16,6 +16,9 @@ export interface IAdminCompany extends Document {
     pincode: string;
     country: string;
     city: string;
+    objective_of_visiting: string;
+    first_learn_about: string;
+    product_dealing: string;
     company_document: string;
     company_website: string;
 }
@@ -35,8 +38,11 @@ const AdminCompanySchema: Schema = new Schema<IAdminCompany>(
         address_two: { type: String, required: true },
         pincode: { type: String, required: true },
         country: { type: String, required: true },
+        product_dealing: { type: String, required: true },
+        objective_of_visiting: { type: String, required: true },
+        first_learn_about: { type: String, required: true },
         city: { type: String, required: true },
-        company_document: { type: String, required: true },
+        company_document: { type: String },
         company_website: { type: String, required: true },
     },
     {

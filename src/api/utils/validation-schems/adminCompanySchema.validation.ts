@@ -33,6 +33,18 @@ export const adminCompanySchema = Joi.object({
         "any.required": "Business Nature Number required.",
         "string.base": "Country Number must be a string."
     }),
+    objective_of_visiting: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
+    first_learn_about: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
+    product_dealing: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
     address_one: Joi.string().required().messages({
         "any.required": "Address one required.",
         "string.base": "Address one must be a string."
@@ -129,7 +141,19 @@ export const updateAdminCompanySchema = Joi.object({
     admin_company_id: Joi.string().required().messages({
         "any.required": "Company Website  required.",
         "string.base": "Company Website must be a string."
-    })
+    }),
+    objective_of_visiting: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
+    first_learn_about: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
+    product_dealing: Joi.string().messages({
+        "any.required": "Business Nature Number required.",
+        "string.base": "Country Number must be a string."
+    }),
 });
 
 

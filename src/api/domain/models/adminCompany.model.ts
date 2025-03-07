@@ -21,6 +21,9 @@ interface storeAdminCompanyData{
     company_document:string;
     company_website:string;
     company_id:string;
+    objective_of_visiting:string;
+    first_learn_about:string;
+    product_dealing:string;
     admin_company_id?:string;
 }
 
@@ -49,6 +52,9 @@ export const storeAdminCompany = async (loginUser:loginUserData,storeAdminCompan
             city:storeAdminCompanyData.city,
             company_document:storeAdminCompanyData.company_document,
             company_website:storeAdminCompanyData.company_website,
+            objective_of_visiting:storeAdminCompanyData.objective_of_visiting,
+            first_learn_about:storeAdminCompanyData.first_learn_about,
+            product_dealing:storeAdminCompanyData.product_dealing,
         });
 
         const savedCompany= await newCompany.save();
@@ -126,6 +132,9 @@ export const updateAdminCompany = async (loginUser: loginUserData, storeAdminCom
                 city: storeAdminCompanyData.city,
                 company_document: storeAdminCompanyData.company_document,  
                 company_website: storeAdminCompanyData.company_website,
+                objective_of_visiting:storeAdminCompanyData.objective_of_visiting,
+                first_learn_about:storeAdminCompanyData.first_learn_about,
+                product_dealing:storeAdminCompanyData.product_dealing,
             },
             { new: true }  
         );
