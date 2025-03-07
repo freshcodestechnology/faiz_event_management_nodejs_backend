@@ -117,49 +117,85 @@ export const updateCompanyTeam = async (loginUser: loginUserData, storeAdminComp
     }
 };
 
-export const companyTeamList = async (loginUserData:loginUserData,userData: storeAdminCompanyData, page: number, pageSize: number, searchQuery: string, callback: (error: any, result: any) => void) => {
+export const companyTeamList = async (
+    loginUserData: loginUserData,
+    userData: storeAdminCompanyData,
+    page: number,
+    pageSize: number,
+    searchQuery: string,
+    user_type: string,
+    search_origin: string,
+    all_date: string,
+    callback: (error: any, result: any) => void
+) => {
     try {
-        console.log(loginUserData.company_id);
+       
+    
         const currentPage = page || 1;
         const size = pageSize || 10;
-
         const skip = (currentPage - 1) * size;
-
-        const searchFilter = searchQuery
-            ? {
-                  $or: [
-                      { company_name: { $regex: searchQuery, $options: 'i' } }, 
-                      { address_one: { $regex: searchQuery, $options: 'i' } }, 
-                      { company_email: { $regex: searchQuery, $options: 'i' } }, 
-                      { country_number: { $regex: searchQuery, $options: 'i' } }, 
+    
+        let searchFilter: any = { company_id: loginUserData.company_id };
+    
+        if (searchQuery) {
+            const isValidObjectId = mongoose.Types.ObjectId.isValid(searchQuery);
+            searchFilter.$and = [
+                { company_id: loginUserData.company_id },
+                {
+                    $or: [
+                        { first_name: { $regex: searchQuery, $options: "i" } },
+                        { last_name: { $regex: searchQuery, $options: "i" } },
+                        { email: { $regex: searchQuery, $options: "i" } },
+                        { address: { $regex: searchQuery, $options: "i" } },
+                        { contact_no: { $regex: searchQuery, $options: "i" } },
+                        ...(isValidObjectId ? [{ _id: new mongoose.Types.ObjectId(searchQuery) }] : []), 
                     ],
-                    company_id: loginUserData.company_id
-                }
-              : { company_id: loginUserData.company_id };
-
-        const events = await CompanyTeamSchema.find(searchFilter).populate("admin_company_id", "company_name").skip(skip).limit(size);
-        
-        const eventswithimage = events.map(event => {
-            return {
-                ...event.toObject(), 
-                business_card: `${env.BASE_URL}/${event.business_card}`,
-                passport_image: `${env.BASE_URL}/${event.passport_image}`,
-                profile_picture: `${env.BASE_URL}/${event.profile_picture}`,
-            };
-        });
-        const totalUsers = await CompanyTeamSchema.countDocuments(searchFilter); 
+                },
+            ];
+        }
+    
+        if (search_origin) {
+            searchFilter.origin = search_origin; 
+        }
+    
+        if (user_type) {
+            searchFilter.user_type = user_type; 
+        }
+    
+        if (all_date) {
+            const date = new Date(all_date);
+            if (!isNaN(date.getTime())) {
+                searchFilter.createdAt = { $gte: date }; 
+            }
+        }
+    
+        const events = await CompanyTeamSchema.find(searchFilter)
+            .populate("admin_company_id", "company_name")
+            .skip(skip)
+            .limit(size);
+    
+        const eventsWithImage = events.map(event => ({
+            ...event.toObject(),
+            business_card: `${env.BASE_URL}/${event.business_card}`,
+            passport_image: `${env.BASE_URL}/${event.passport_image}`,
+            profile_picture: `${env.BASE_URL}/${event.profile_picture}`,
+        }));
+    
+        const totalUsers = await CompanyTeamSchema.countDocuments(searchFilter);
+    
         const result = {
-            currentPage: currentPage,
+            currentPage,
             totalPages: Math.ceil(totalUsers / size),
-            totalUsers: totalUsers,
-            companies: eventswithimage,
+            totalUsers,
+            companies: eventsWithImage,
         };
-
+    
         return callback(null, result);
     } catch (error) {
         return callback(error, null);
     }
-}
+    
+};
 
 
 
