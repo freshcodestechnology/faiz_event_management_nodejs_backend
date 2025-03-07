@@ -23,7 +23,9 @@ import { scannerData ,scannerGetData} from "../../utils/validation-schems/scanne
 import { blogValidation,updateBlogValidation,homeBlogdetailsValidation,deleteEventBlog } from "../../utils/validation-schems/blogValidation.validation";
 import { getEventBlog,storeBlogController,eventBlogDetailsController, updateBlogController,locationWiseEventList,locationWiseBlogDetails,deleteEventBlogController} from "../../interface/controllers/eventBlog.conroller";
 import { storeAdminCompanyController,getAdminCompanyList,getAdminCompanyDetails,updateAdminCompanyController,deleteAdminCompanyController } from "../../interface/controllers/adminCompany.controller";
+import {  storeCompanyTeamController , updateCompanyTeamController,deleteCompanyTeamController,getCompanyTeamDetails,getCompanyTeamList } from "../../interface/controllers/companyTeam.controller";
 import { adminCompanySchema,updateAdminCompanySchema,deleteAdminCompanySchema } from "../../utils/validation-schems/adminCompanySchema.validation";
+import { companyTeamSchema,updateCompanyTeamSchema,deleteCompanyTeamSchema } from "../../utils/validation-schems/companyTeamSchema.validation";
 import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/validation-schems/scannerPage.validation";
 
 
@@ -45,7 +47,13 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.get('/get-admin-company-details/:id',protectedRoute,getAdminCompanyDetails);
             route.post('/update-admin-company',protectedRoute,validateRequest(updateAdminCompanySchema),updateAdminCompanyController);
             route.post('/delete-admin-company',protectedRoute,validateRequest(deleteAdminCompanySchema),deleteAdminCompanyController);
-            
+
+            route.get('/get-company-team-list',protectedRoute,getCompanyTeamList);
+            route.post('/store-company-team',protectedRoute,validateRequest(companyTeamSchema),storeCompanyTeamController);
+            route.post('/update-company-team',protectedRoute,validateRequest(updateCompanyTeamSchema),updateCompanyTeamController);
+            route.get('/get-company-team-details/:id',protectedRoute,getCompanyTeamDetails);
+            route.post('/delete-company-team',protectedRoute,validateRequest(deleteCompanyTeamSchema),deleteCompanyTeamController);
+
             
             route.post("/register",validateRequest(registerUserSchema),registerUser);
             route.post("/login",validateRequest(loginUserSchema),loginUser);
@@ -75,8 +83,6 @@ import { getEventDetailValidation,scanParticipantFaceSchema } from "../../utils/
             route.get("/get-all-paticipant-user-list",protectedRoute,getAllParticipantUserList);
             route.post("/update-extra-event-details",protectedRoute,validateRequest(updateExtraEventDetails),UpdateExtraEventDetails);
             route.post("/get-extra-event-details",protectedRoute,validateRequest(extraEventDetails),GetExtraEventDetails);
-            
-
             
             //unique url generate
             route.get("/generate-unique-url/:slug",protectedRoute,generateUniqueURL);
