@@ -100,6 +100,7 @@ export const updateCompanyTeam = async (loginUser: loginUserData, storeAdminComp
                 origin: storeAdminCompanyData.origin,
                 visa_recommendation: storeAdminCompanyData.visa_recommendation,
                 business_card: storeAdminCompanyData.business_card,
+                admin_company_id:storeAdminCompanyData.admin_company_id,
             },
             { new: true }  
         );
