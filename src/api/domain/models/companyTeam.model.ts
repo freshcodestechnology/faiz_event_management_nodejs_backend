@@ -118,6 +118,7 @@ export const updateCompanyTeam = async (loginUser: loginUserData, storeAdminComp
     }
 };
 
+
 export const companyTeamList = async (
     loginUserData: loginUserData,
     userData: storeAdminCompanyData,

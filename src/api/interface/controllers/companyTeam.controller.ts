@@ -42,6 +42,7 @@ export const storeCompanyTeamController = async (req: Request, res: Response) =>
     }
 };
 
+
 export const getCompanyTeamList = async (req: Request, res: Response) => {
     try {
             const { page = 1, pageSize = 10, search = "" , user_type = "",origin = "",all_date="",company_id="" } = req.query;
