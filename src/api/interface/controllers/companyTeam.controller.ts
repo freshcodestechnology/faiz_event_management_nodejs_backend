@@ -44,14 +44,15 @@ export const storeCompanyTeamController = async (req: Request, res: Response) =>
 
 export const getCompanyTeamList = async (req: Request, res: Response) => {
     try {
-            const { page = 1, pageSize = 10, search = "" , user_type = "",origin = "",all_date="" } = req.query;
+            const { page = 1, pageSize = 10, search = "" , user_type = "",origin = "",all_date="",company_id="" } = req.query;
             companyTeamList(req.user,req.body,
                 parseInt(page as string),
                 parseInt(pageSize as string),
                 search as string,
                 user_type as string,
                 origin as string,
-                all_date as string, (error:any, result:any) => {
+                all_date as string,
+                company_id as string, (error:any, result:any) => {
                 if (error) {
                     return res.status(500).json({
                         code: "INTERNAL_SERVER_ERROR",

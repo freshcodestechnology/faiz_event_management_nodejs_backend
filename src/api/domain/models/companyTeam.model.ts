@@ -127,6 +127,7 @@ export const companyTeamList = async (
     user_type: string,
     search_origin: string,
     all_date: string,
+    company_id:string,
     callback: (error: any, result: any) => void
 ) => {
     try {
@@ -161,6 +162,11 @@ export const companyTeamList = async (
     
         if (user_type) {
             searchFilter.user_type = user_type; 
+        }
+        console.log(company_id);
+        if (company_id) {
+            console.log(company_id);
+            searchFilter.admin_company_id = company_id; 
         }
     
         if (all_date) {
